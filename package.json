@@ -1,0 +1,21 @@
+{
+  "name": "DawnntNode",
+  "version": "0.0.0",
+  "description": "DawnntNode",
+  "main": "server.js",
+  "author": {
+    "name": "Timee",
+    "email": ""
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "co-request": "^1.0.0",
+    "ihuyi106": "0.0.3",
+    "koa-router": "^5.4.0",
+    "koa.io": "0.0.3",
+    "memory-cache": "^0.1.5",
+    "pg": "^4.5.3",
+    "qiniu": "^6.1.9",
+    "sequelize": "^3.21.0"
+  }
+}
