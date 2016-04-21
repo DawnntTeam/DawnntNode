@@ -254,6 +254,8 @@ exprots.Bubblemap = sequelize.define('bubblemap', {
     }
   }
 })
+exprots.Bubblemap.hasOne(exprots.Status, { foreignKey: 'id' })
+
 exprots.PhoneUser = sequelize.define('phoneuser', {
   phone: {
     type: Sequelize.STRING

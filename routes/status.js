@@ -73,68 +73,44 @@ router.get('public', function * () {
 })
 
 router.publicStatus = function * () {
-  var status
-  var include = [
-    [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('comment'), 1), 0), 'commentCount'],
-    [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
-  ]
-  if (this.query !== undefined && this.query.index !== undefined) {
-    if (this.query.index.charAt(0) === '>') { // shang
-      status = yield db.Status.findAll({
-        where: {
-          id: {
-            gt: this.query.index.substr(1)
-          }
-        },
-        limit: 25,
-        order: 'id ASC',
-        population: {
-          model: 'user',
-          col: 'user'
-        },
-        attributes: {
-          include: include
-        }
-      })
-      if (status.length > 1) {
-        status.reverse()
-      }
-    } else { // xia
-      status = yield db.Status.findAll({
-        where: {
-          id: {
-            lt: this.query.index.substr(1)
-          }
-        },
-        limit: 25,
-        order: 'id DESC',
-        population: {
-          model: 'user',
-          col: 'user'
-        },
-        attributes: {
-          include: include
-        }
-      })
+  var option = {
+    where: {},
+    limit: 25,
+    order: 'id DESC',
+    population: {
+      model: 'user',
+      col: 'user'
+    },
+    attributes: {
+      include: [
+        [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('comment'), 1), 0), 'commentCount'],
+        [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
+      ]
     }
-  } else {
-    status = yield db.Status.findAll({
-      limit: 25,
-      order: 'id DESC',
-      population: {
-        model: 'user',
-        col: 'user'
-      },
-      attributes: {
-        include: include
-      }
-    })
   }
 
-  var statuses = {}
+  if (this.query !== undefined && this.query.index !== undefined) {
+    if (this.query.index.charAt(0) === '>') {
+      option.where.id = {
+        gt: this.query.index.substr(1)
+      }
+      option.order = 'id ASC'
+    } else if (this.query.index.charAt(0) === '<') {
+      option.where.id = {
+        lt: this.query.index.substr(1)
+      }
+    }
+  }
+
+  var status = yield db.Status.findAll(option)
+
+  if (option.order === 'id ASC') {
+    status.reverse()
+  }
+
+  var statuses = {status: status}
 
   if (status.length > 0) {
-    statuses.status = status
     statuses.next = '<' + status[status.length - 1].id
     statuses.prev = '>' + status[0].id
   }

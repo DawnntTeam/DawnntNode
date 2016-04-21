@@ -88,7 +88,7 @@ router.get('reply', function * () {
 
   if (status.user.id !== target.user.id) {
     yield socketNotice.emitNotice('comment', this.user.id, status.user.id, comment.id, status.id)
-  } // 如果评论和状态是同一人，则只发送恢复的通知
+  } // 如果评论和状态是作者，则只发送回复的通知
   yield socketNotice.emitNotice('reply', this.user.id, target.user.id, comment.id, status.id, target.id)
 
   this.body = comment

@@ -15,8 +15,19 @@ const routerAlbum = require('./routes/album')
 const routerWozaizheer = require('./routes/wozaizheer')
 const socketNotice = require('./sockets/notice')
 
+var db = require('./codes/db')
+// db.Bubblemap.hasOne(db.Status, { foreignKey: 'id' })
 router.get('/', function * (next) {
-  this.body = '66691'
+  var bubblemap = yield db.Bubblemap.findAll({
+    where: {
+      map: 'map-3'
+    },
+    limit: 25,
+    order: 'id ASC',
+    include: [db.Status]
+  })
+
+  this.body = bubblemap
 })
 
 app.on('error', function (error, context) {

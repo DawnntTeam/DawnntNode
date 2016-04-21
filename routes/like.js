@@ -59,7 +59,7 @@ router.get('destroy', function * () {
     this.message('没有点赞')
   }
 
-  status.setDataValue('like', sequelize.fn('array_remove', sequelize.col('like'), parseInt(this.user.id)))
+  status.setDataValue('like', sequelize.fn('array_remove', sequelize.col('like'), Number(this.user.id)))
   yield status.save({
     fields: ['like']
   })

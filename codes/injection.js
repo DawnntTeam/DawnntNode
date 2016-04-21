@@ -11,7 +11,7 @@ module.exports = function * (next) {
   }
   this.message = function (v, s) {
     if (this.throw) {
-      this.throw(s || 400, JSON.stringify({ message: v, status: s || 400, isError: true }))
+      this.throw(s || 400, {isMessage: true, message: JSON.stringify({ message: v, status: s || 400, isError: true })})
     }
   }
   this.checkAuth = function () {
@@ -152,5 +152,14 @@ module.exports = function * (next) {
     }
   } // 如果有id这自动验证id长度是否匹配
 
-  yield * next
+  try {
+    yield * next
+  } catch (error) {
+    if (error.isMessage) {
+      throw error
+    } else {
+      this.error(error)
+      this.throw(500)
+    }
+  }
 }

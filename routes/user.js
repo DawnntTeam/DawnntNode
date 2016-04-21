@@ -66,7 +66,7 @@ router.get('show', function * () {
     if (user.dataValues.status != null) {
       this.pagingPointer(this.query.index, user, 'status')
     }
-    // REVIEW:方法可能会出现问题
+    // NOTE:等到population支持attributes时使用population
     this.body = user
   } else {
     this.checkAuth()
