@@ -276,7 +276,7 @@ exprots.WozaizheerWechatUser = sequelize.define('wozaizheerWechatUser', {
       return new Date(this.id / 1000) }
   }
 })
-  // exprots.WozaizheerWechatUser.sync({force: true})
+// exprots.WozaizheerWechatUser.sync({force: true})
 
 exprots.Token = sequelize.define('token', {
   token: { type: Sequelize.STRING },

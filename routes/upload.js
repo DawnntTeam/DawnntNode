@@ -18,7 +18,7 @@ var bucket = 'node'
 //   return putPolicy.token()
 // }
 
-router.get('getToken', function *() {
+router.get('getToken', function * () {
   var key = Date.now() * 1000
   var putPolicy = new qiniu.rs.PutPolicy(bucket + ':' + key)
   putPolicy.fsizeLimit = 1024 * 1024 * 5

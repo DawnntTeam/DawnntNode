@@ -4,7 +4,7 @@ var router = require('koa-router')({
 })
 // var routesSocket = require('./../routes/socket')
 
-router.get('markRead', function *() {
+router.get('markRead', function * () {
   this.checkAuth()
   if (this.query !== undefined && this.query.id !== undefined) {
     var notify = yield db.Notify.findOne({
@@ -22,7 +22,7 @@ router.get('markRead', function *() {
     this.throw403('id')
   }
 })
-router.get('markSeveralRead', function *() {
+router.get('markSeveralRead', function * () {
   this.checkAuth()
 
   if (this.query !== undefined && this.query.id !== undefined) {
@@ -45,12 +45,12 @@ router.get('markSeveralRead', function *() {
   }
 })
 
-router.get('unread', function *() {
+router.get('unread', function * () {
   this.checkAuth()
   this.body = yield router.unread(this.user.id)
 })
 
-router.get('show', function *() {
+router.get('show', function * () {
   this.checkAuth()
   var where = {
     targetUser: this.user.id
@@ -113,7 +113,7 @@ router.get('show', function *() {
   this.body = date
 })
 
-router.get('info', function *() {
+router.get('info', function * () {
   this.checkAuth()
   if (this.query !== undefined && this.query.id !== undefined) {
     var notify = yield db.Notify.findById(this.query.id, {
@@ -131,7 +131,7 @@ router.get('info', function *() {
   }
 })
 
-router.unread = function *(targetUser) {
+router.unread = function * (targetUser) {
   var notify = yield db.Notify.findAll({
     where: {
       state: false,

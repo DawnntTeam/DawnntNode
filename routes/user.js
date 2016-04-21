@@ -3,7 +3,7 @@ var router = require('koa-router')({
   prefix: '/user/'
 })
 var sequelize = require('sequelize')
-router.get('info', function *() {
+router.get('info', function * () {
   if (this.request.query.id || this.user) {
     var include = [
       [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('status'), 1), 0), 'statusCount'],
@@ -28,7 +28,7 @@ router.get('info', function *() {
   }
 })
 
-router.get('show', function *() {
+router.get('show', function * () {
   var page = this.pagingSlice(this.query.index)
 
   var include = [
@@ -72,7 +72,7 @@ router.get('show', function *() {
   }
 })
 
-router.get('save', function *() {
+router.get('save', function * () {
   this.checkAuth()
   var query = this.request.query
   var user = yield db.User.findById(this.user.id)

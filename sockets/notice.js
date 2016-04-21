@@ -7,7 +7,7 @@ var router = require('./../codes/koa.io-router')({
 //     socket.emit('open');//通知客户端已连接
 
 //     socket.route('new message', function*() {
-//         socket.emitById(this.user.id, 'online', this.data);
+//         socket.emitById(this.user.id, 'online', this.data)
 //     })
 
 //     socket.emitNotice = function*(type, user, targetUser, comment, status, reply) {
@@ -19,16 +19,16 @@ var router = require('./../codes/koa.io-router')({
 //             comment: comment,
 //             status: status,
 //             reply: reply
-//         });
-//         socket.emitById(user, 'notice', type);
-//     };
+//         })
+//         socket.emitById(user, 'notice', type)
+//     }
 // })
 
-router.route('new message', function *() {
+router.route('new message', function * () {
   router.emitById(this.user.id, 'online', this.data)
 })
 
-router.emitNotice = function *(type, user, targetUser, comment, status, reply) {
+router.emitNotice = function * (type, user, targetUser, comment, status, reply) {
   var temp = yield db.Notify.create({
     type: type,
     state: false,

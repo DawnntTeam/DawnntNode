@@ -4,7 +4,7 @@ var router = require('koa-router')({
   prefix: '/comment/'
 })
 var sequelize = require('sequelize')
-router.get('publish', function *() {
+router.get('publish', function * () {
   this.checkAuth()
   if (this.request.query === undefined || this.request.query.id === undefined) {
     this.throw412()
@@ -53,7 +53,7 @@ router.get('publish', function *() {
   }
 })
 
-router.get('reply', function *() {
+router.get('reply', function * () {
   this.checkAuth()
   if (this.request.query === undefined || this.request.query.id === undefined || this.request.query.target === undefined) {
     this.throw412()

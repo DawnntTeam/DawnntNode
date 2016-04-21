@@ -6,7 +6,7 @@ var router = require('koa-router')({
 var sequelize = require('sequelize')
 
 // 好友申请
-router.get('friendRequest', function *() {
+router.get('friendRequest', function * () {
   this.checkAuth()
   this.required('id')
 
@@ -15,7 +15,7 @@ router.get('friendRequest', function *() {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('relation'), this.user.id), 'isFriend'],
         [sequelize.fn('array_exist_id', sequelize.col('black'), this.user.id), 'isBlack']
-        // [sequelize.col('relation'), 'relation']
+      // [sequelize.col('relation'), 'relation']
       ]
     }
   })
@@ -62,7 +62,7 @@ router.get('friendRequest', function *() {
 })
 
 // 拒绝好友申请
-router.get('refuseFriendRequest', function *() {
+router.get('refuseFriendRequest', function * () {
   this.checkAuth()
   this.required('id')
   // this.required('targetUser')
@@ -96,7 +96,7 @@ router.get('refuseFriendRequest', function *() {
 })
 
 // 同意好友申请
-router.get('theFriendRequest', function *() {
+router.get('theFriendRequest', function * () {
   this.checkAuth()
   this.required('id')
   // this.required('targetUser')
@@ -116,7 +116,7 @@ router.get('theFriendRequest', function *() {
           [sequelize.fn('array_exist_id', sequelize.col('relation'), userid), 'isFriend'],
           [sequelize.fn('array_exist_id', sequelize.col('black'), userid), 'isBlack'],
           [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
-          // [sequelize.col('relation'), 'relation']
+        // [sequelize.col('relation'), 'relation']
         ]
       },
       transaction: t
@@ -145,8 +145,8 @@ router.get('theFriendRequest', function *() {
           include: [
             [sequelize.fn('array_exist_id', sequelize.col('relation'), id), 'isFriend'],
             [sequelize.fn('array_exist_id', sequelize.col('black'), id), 'isBlack']
-            // [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
-            // [sequelize.col('relation'), 'relation']
+          // [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
+          // [sequelize.col('relation'), 'relation']
           ]
         },
         transaction: t
@@ -179,20 +179,20 @@ router.get('theFriendRequest', function *() {
         notify.option = {
           action: 'theFriendRequest'
         }
-          //    if(userid!=id) {
-          //         // 添加一条同意的信息
-          //         db.Notify.create({
-          //             type: 'theFriendRequest',
-          //             state: false,
-          //             user: userid,//被申请人
-          //             targetUser: id//申请人
-          //         })
-          //    }
+        //    if(userid!=id) {
+        //         // 添加一条同意的信息
+        //         db.Notify.create({
+        //             type: 'theFriendRequest',
+        //             state: false,
+        //             user: userid,//被申请人
+        //             targetUser: id//申请人
+        //         })
+        //    }
         t.commit()
       }).catch(function (err) {
         t.rollback()
         notify = {}
-         // console.log(err)
+      // console.log(err)
       })
     })
   })
@@ -291,7 +291,7 @@ router.get('theFriendRequest', function *() {
 //     }
 // })
 
-router.get('destroy', function *() {
+router.get('destroy', function * () {
   this.checkAuth()
   this.required('id')
   if (this.request.query.id === this.user.id) {
@@ -302,7 +302,7 @@ router.get('destroy', function *() {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('relation'), this.user.id), 'isFriend'],
         [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
-        // [sequelize.col('relation'), 'relation']
+      // [sequelize.col('relation'), 'relation']
       ]
     }
   })
@@ -310,8 +310,8 @@ router.get('destroy', function *() {
     attributes: {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('relation'), friend.id), 'isFriend']
-        // [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
-        // [sequelize.col('relation'), 'relation']
+      // [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
+      // [sequelize.col('relation'), 'relation']
       ]
     }
   })
@@ -339,13 +339,13 @@ router.get('destroy', function *() {
     yield user.save({
       fields: ['relation']
     })
-    // delete user.dataValues['relation']
+  // delete user.dataValues['relation']
   }
 
   this.body = friend
 })
 
-router.get('show', function *() {
+router.get('show', function * () {
   var page = this.pagingSlice(this.query.index)
   if (this.request.query.id || this.user) {
     var user = yield db.User.findById(this.request.query.id || this.user.id, {

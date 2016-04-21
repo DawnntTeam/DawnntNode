@@ -5,7 +5,7 @@ var router = require('koa-router')({
 })
 
 var sequelize = require('sequelize')
-router.get('create', function *() {
+router.get('create', function * () {
   this.checkAuth()
   this.required('id')
 
@@ -14,7 +14,7 @@ router.get('create', function *() {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('like'), this.user.id), 'isLike'],
         [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
-        // [sequelize.col('like'), 'like']
+      // [sequelize.col('like'), 'like']
       ]
     }
   })
@@ -40,7 +40,7 @@ router.get('create', function *() {
   }
 })
 
-router.get('destroy', function *() {
+router.get('destroy', function * () {
   this.checkAuth()
   this.required('id')
   var status = yield db.Status.findById(this.query.id, {
@@ -48,7 +48,7 @@ router.get('destroy', function *() {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('like'), this.user.id), 'isLike'],
         [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
-        // [sequelize.col('like'), 'like']
+      // [sequelize.col('like'), 'like']
       ]
     }
   })
@@ -66,7 +66,7 @@ router.get('destroy', function *() {
       status.dataValues.isLike = false
       status.dataValues.likeCount = status.dataValues.likeCount - 1
       this.body = status
-      // }
+    // }
     } else {
       this.throw403('id')
     }

@@ -4,7 +4,7 @@ var router = require('koa-router')({
   prefix: '/status/'
 })
 var sequelize = require('sequelize')
-router.get('info', function *() {
+router.get('info', function * () {
   this.required('id')
   var status = yield db.Status.findById(this.request.query.id, {
     population: {
@@ -20,7 +20,7 @@ router.get('info', function *() {
   }
 })
 
-router.get('show', function *() {
+router.get('show', function * () {
   this.required('id')
   var page = this.pagingSlice(this.query.index)
   var include = [
@@ -64,15 +64,15 @@ router.get('show', function *() {
   }
 })
 
-router.get('publish', function *() {
+router.get('publish', function * () {
   this.body = yield router.publishStatus.call(this)
 })
 
-router.get('public', function *() {
+router.get('public', function * () {
   this.body = yield router.publicStatus.call(this)
 })
 
-router.publicStatus = function *() {
+router.publicStatus = function * () {
   var status
   var include = [
     [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('comment'), 1), 0), 'commentCount'],
@@ -141,7 +141,7 @@ router.publicStatus = function *() {
   return statuses
 }
 
-router.publishStatus = function *() {
+router.publishStatus = function * () {
   this.checkAuth()
   this.required('content')
   var status = yield db.Status.create({
