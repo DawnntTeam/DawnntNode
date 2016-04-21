@@ -13,21 +13,17 @@ var auth = function * (next) {
   if (token && token.length === 36) {
     this.user = cache.get(token)
     if (this.user == null) {
-      // var userToken = yield db.Token.findOne({
-      //     token: token
-      // }).populate("user")
       var userToken = yield db.Token.findOne({
         where: {
           token: token
         }
       })
       if (userToken != null) {
-        var Token_user = yield db.User.findOne({
+        userToken.user = yield db.User.findOne({
           where: {
             id: userToken.user
           }
         })
-        userToken.user = Token_user
         this.user = userToken.user
         cache.put(token, this.user, 10 * 60 * 1000)
       } else {
@@ -43,7 +39,7 @@ var auth = function * (next) {
   try {
     yield * next
   } catch (error) {
-    console.log(error)
+    console.error(error)
     this.throw500()
   }
 }

@@ -7,10 +7,7 @@ router.get('create', function * () {
   this.checkAuth()
   this.required('id')
   var user = yield db.User.findById(this.user.id)
-  // var ay=JSON.parse("["+this.query.id+"]")
-  // this.query.id.substring(0,this.query.id.length).split(',')
-  user.setDataValue('album', sequelize.fn('array_cat', sequelize.col('album'), JSON.parse('[' + this.query.id + ']')))
-  // TODO:JSON.parse("["+this.query.id+"]") 使用split
+  user.setDataValue('album', sequelize.fn('array_cat', sequelize.col('album'), [Number(this.query.id)]))
   yield user.save({
     fields: ['album']
   })
@@ -19,7 +16,6 @@ router.get('create', function * () {
 })
 
 router.get('show', function * () {
-  // this.checkAuth()
   var page = this.pagingSlice(this.query.index)
   var user = yield db.User.findById(this.query.id || this.user.id, {
     attributes: {
@@ -41,7 +37,7 @@ router.get('destroy', function * () {
   this.checkAuth()
   this.required('id')
   var user = yield db.User.findById(this.user.id)
-  user.setDataValue('album', sequelize.fn('multi_int_array_remove', sequelize.col('album'), JSON.parse('[' + this.query.id + ']')))
+  user.setDataValue('album', sequelize.fn('multi_int_array_remove', sequelize.col('album'), [Number(this.query.id)]))
   yield user.save({
     fields: ['album']
   })
@@ -66,6 +62,7 @@ router.get('coverSet', function * () {
       fields: ['albumCover']
     })
     delete user.dataValues['albumCover']
+    // REVIEW:应该是可以直接设置的不需要用到serDataValues
     this.body = true
   } else {
     this.throw400('相册中不存在该图片')

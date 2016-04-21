@@ -2,7 +2,6 @@ var db = require('./../codes/db')
 var router = require('koa-router')({
   prefix: '/notify/'
 })
-// var routesSocket = require('./../routes/socket')
 
 router.get('markRead', function * () {
   this.checkAuth()

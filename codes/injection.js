@@ -1,4 +1,14 @@
-var injection = function * (next) {
+'use strict'
+module.exports = function * (next) {
+  this.log = function (message) {
+    console.log(message)
+  }
+  this.warn = function (message) {
+    console.warn(message)
+  }
+  this.error = function (message) {
+    console.error(message)
+  }
   this.message = function (v, s) {
     if (this.throw) {
       this.throw(s || 400, JSON.stringify({ message: v, status: s || 400, isError: true }))
@@ -138,11 +148,9 @@ var injection = function * (next) {
 
   if (this.request && this.request.query && this.request.query.id) {
     if (this.request.query.id.length !== 16) {
-      this.throw404('id')
+      this.throw412('id')
     }
   } // 如果有id这自动验证id长度是否匹配
 
   yield * next
 }
-
-module.exports = injection

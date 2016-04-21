@@ -1,4 +1,6 @@
-﻿const config = require('./config')
+﻿// TODO:关于getterMethods方法的方案在hook中设置代替方案
+'use strict'
+const config = require('./config')
 
 process.env['BLUEBIRD_DEBUG'] = 0
 var Sequelize = require('sequelize')

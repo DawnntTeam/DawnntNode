@@ -4,6 +4,7 @@ var router = require('koa-router')({
   prefix: '/status/'
 })
 var sequelize = require('sequelize')
+
 router.get('info', function * () {
   this.required('id')
   var status = yield db.Status.findById(this.request.query.id, {
@@ -13,11 +14,11 @@ router.get('info', function * () {
     }
   })
 
-  if (status) {
-    this.body = status
-  } else {
-    this.throw404('id')
+  if (!status) {
+    this.throw404(this.query.id)
+    return
   }
+  this.body = status
 })
 
 router.get('show', function * () {
@@ -28,7 +29,7 @@ router.get('show', function * () {
     [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('comment'), 1), 0), 'commentCount'],
     [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
   ]
-  if (this.user && this.user.id) {
+  if (this.user) {
     include.push([sequelize.fn('array_exist_id', sequelize.col('like'), this.user.id), 'isLike'])
   }
   var status = yield db.Status.findById(this.query.id, {
@@ -54,14 +55,13 @@ router.get('show', function * () {
       include: include
     }
 
-  }) // 获取Status
+  })
 
-  if (status) {
-    this.pagingPointer(this.query.index, status, 'comment')
-    this.body = status
-  } else {
-    this.throw404('id')
+  if (!status) {
+    this.throw404(this.query.id)
+    return
   }
+  this.body = status
 })
 
 router.get('publish', function * () {
@@ -150,9 +150,9 @@ router.publishStatus = function * () {
     latitude: this.request.query.latitude,
     user: this.user.id
   })
+
   var user = yield db.User.findById(this.user.id)
-  // user.statusCount = (user.status.length || 0)+1
-  user.setDataValue('status', sequelize.fn('array_cat', sequelize.col('status'), [parseInt(status.id)]))
+  user.setDataValue('status', sequelize.fn('array_cat', sequelize.col('status'), [Number(status.id)]))
   yield user.save({
     fields: ['status']
   })

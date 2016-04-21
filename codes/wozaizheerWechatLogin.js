@@ -1,3 +1,4 @@
+// TODO:对进行高级别的封装直接返回json而不是使用方法封装
 var db = require('./db')
 var account = require('./../routes/account')
 var request = require('co-request')

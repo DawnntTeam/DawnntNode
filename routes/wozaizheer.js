@@ -29,17 +29,16 @@ router.createToken = function (mark) {
 
 router.get('publish', function * () {
   var status = yield routerstatus.publishStatus.call(this)
-  if (status) {
-    var bubblemap = yield db.Bubblemap.create({
-      id: status.id,
-      map: this.query.map
-    })
-    status.dataValues.map = bubblemap.id
-  }
+  var bubblemap = yield db.Bubblemap.create({
+    id: status.id,
+    map: this.query.map
+  })
+  status.dataValues.map = bubblemap.id
   this.body = status
 })
 
 router.get('public', function * () {
+  // REVIEW:方案有误
   var bubblemap
 
   if (this.query !== undefined && this.query.index !== undefined) {

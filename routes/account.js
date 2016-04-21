@@ -1,3 +1,4 @@
+'use strict'
 var db = require('./../codes/db')
 var router = require('koa-router')({
   prefix: '/account/'
@@ -9,7 +10,9 @@ var phoneRegexp = new RegExp('0?(13[0-9]|15[012356789]|17[0678]|18[0-9]|14[57])[
 router.get('sendMessage', function * () {
   this.required('phone')
   var phone = this.request.query.phone
-  if (phoneRegexp.test(phone)) {} // TODO:代码被注释 原因不明
+  if (!phoneRegexp.test(phone)) {
+    this.message('请输入正确的手机号')
+  }
   var code = Math.random().toString().substring(3, 9)
   yield db.PhoneCode.create({
     phone: this.request.query.phone,
@@ -24,48 +27,42 @@ router.get('sendMessage', function * () {
   } else {
     this.body = {}
     ihuyi.send(phone, '您的验证码是：' + code + '，（10分钟内有效）。请不要把验证码泄露给其他人。', function (err, smsId) {
-      if (err) {} else {}
+      if (err) {
+        this.error(err)
+      }
     })
   }
 })
 
 router.loginFunction = function * () {
-  // if (this.user) {
-  //    return this.user
-  // } //如果已经登录则不需要重新登录
-  this.required('type', 'name')
+  if (this.user) {
+    return this.user
+  } // 如果已经登录则不需要重新登录
+  this.required('type', 'phone')
   if (this.request.query.type === 'phone') {
     this.required('code')
-    // var count = yield db.PhoneCode.findOneAndRemove({ phone: this.request.query.name })
-    var count = yield db.PhoneCode.find({
+    var phoneCode = yield db.PhoneCode.find({
       where: {
-        phone: this.request.query.name,
+        phone: this.request.query.phone,
         code: this.request.query.code
       }
     })
     // TODO:code是否需要建立索引还是需要通过建立数组来添加code
-    if (count != null) {
-      yield db.PhoneCode.destroy({
-        where: {
-          id: count.id
-        }
-      })
-      if (count.code !== this.request.query.code) {
-        this.message('验证码错误')
-        return
-      }
-      if (((Date.now() - count.id / 1000) / (1000 * 60)) < 10) {} else {
+    if (phoneCode != null) {
+      yield phoneCode.destroy()
+      if (((Date.now() - phoneCode.id / 1000) / (1000 * 60)) > 10) {
         this.message('验证码已过期')
         return
       }
+    // 验证码10分钟内有效
     } else {
-      this.message('请先发送验证码')
+      this.message('验证码错误')
       return
     }
     var user
     var phoneUser = yield db.PhoneUser.findOne({
       where: {
-        phone: this.request.query.name
+        phone: this.request.query.phone
       }
     })
 
@@ -81,8 +78,12 @@ router.loginFunction = function * () {
         phone: this.request.query.phone
       })
     }
-    yield router.Token.call(this, user)
-    return user
+    if (user != null) {
+      yield router.Token.call(this, user)
+      return user
+    } else {
+      this.error('找不到用户')
+    }
   }
 }
 
@@ -98,7 +99,7 @@ router.Token = function * (user) {
 
   cache.put(token.token, user, 10 * 60 * 1000)
   // 缓存时间为10分钟，十分钟之后会失效
-  // 缓存会在authjs中进行验证
+  // 缓存会在auth.js中进行验证
   // 如果没有则从数据库读取
   // 浏览器cookies会保存一年
   this.cookies.set('token', token.token, {
@@ -110,12 +111,9 @@ router.Token = function * (user) {
 
 router.get('login', function * () {
   var user = yield router.loginFunction.call(this)
-  this.body = user || {}
+  this.body = user
 })
 router.get('logout', function * () {
-  // yield db.Token.findOneAndRemove({
-  //     token: this.cookies.get("token")
-  // })
   var token = yield db.Token.findOne({
     where: {
       token: this.cookies.get('token')
