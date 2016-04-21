@@ -13,5 +13,5 @@
 //   yield* next;
 // };
 
-module.exports.user = {};
-module.exports.sockets = {};
+module.exports.user = {}
+module.exports.sockets = {}

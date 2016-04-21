@@ -1,25 +1,24 @@
-﻿const app = require('koa.io')();
-const router = require('koa-router')();
-const path = require('path');
+﻿const app = require('koa.io')()
+const router = require('koa-router')()
 
-const injection = require('./codes/injection');
-const auth = require('./codes/auth');
-const routerAccount = require('./routes/account');
-const routerUser = require('./routes/user');
-const routerStatus = require('./routes/status');
-const routerComment = require('./routes/comment');
-const routerRelation = require('./routes/relation');
-const routerLike = require('./routes/like');
-const routerNotify = require('./routes/notify');
-const routerUpload = require('./routes/upload');
-const routerAlbum = require('./routes/album');
-const routerWozaizheer = require('./routes/wozaizheer');
-const socketNotice = require('./sockets/notice');
+const injection = require('./codes/injection')
+const auth = require('./codes/auth')
+const routerAccount = require('./routes/account')
+const routerUser = require('./routes/user')
+const routerStatus = require('./routes/status')
+const routerComment = require('./routes/comment')
+const routerRelation = require('./routes/relation')
+const routerLike = require('./routes/like')
+const routerNotify = require('./routes/notify')
+const routerUpload = require('./routes/upload')
+const routerAlbum = require('./routes/album')
+const routerWozaizheer = require('./routes/wozaizheer')
+const socketNotice = require('./sockets/notice')
 
 const db=require('./codes/db')
-router.get('/', function* (next) {
-    this.body = "66688";
-     yield db.User.findById(wechatUser.id);
+router.get('/', function *(next) {
+    this.body = "66688"
+     yield db.User.findById(wechatUser.id)
 });
 
 app.on('error', function (error, context) {
@@ -43,7 +42,7 @@ app
     .use(routerUpload.routes())
     .use(routerAlbum.routes())
     .use(routerWozaizheer.routes())
-    .use(router.allowedMethods());
+    .use(router.allowedMethods())
 
 socketNotice.routes(app.io);
 
