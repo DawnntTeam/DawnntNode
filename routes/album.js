@@ -3,14 +3,14 @@ var router = require('koa-router')({
   prefix: '/album/'
 })
 var sequelize = require('sequelize')
-router.get('create', function *() {
+router.get('create', function * () {
   this.checkAuth()
   this.required('id')
   var user = yield db.User.findById(this.user.id)
   // var ay=JSON.parse("["+this.query.id+"]")
   // this.query.id.substring(0,this.query.id.length).split(',')
   user.setDataValue('album', sequelize.fn('array_cat', sequelize.col('album'), JSON.parse('[' + this.query.id + ']')))
-    // TODO:JSON.parse("["+this.query.id+"]") 使用split
+  // TODO:JSON.parse("["+this.query.id+"]") 使用split
   yield user.save({
     fields: ['album']
   })
@@ -18,7 +18,7 @@ router.get('create', function *() {
   this.body = true
 })
 
-router.get('show', function *() {
+router.get('show', function * () {
   // this.checkAuth()
   var page = this.pagingSlice(this.query.index)
   var user = yield db.User.findById(this.query.id || this.user.id, {
@@ -37,7 +37,7 @@ router.get('show', function *() {
   }
 })
 
-router.get('destroy', function *() {
+router.get('destroy', function * () {
   this.checkAuth()
   this.required('id')
   var user = yield db.User.findById(this.user.id)
@@ -50,7 +50,7 @@ router.get('destroy', function *() {
 })
 
 // 相册封面设置
-router.get('coverSet', function *() {
+router.get('coverSet', function * () {
   this.checkAuth()
   this.required('id')
   var user = yield db.User.findById(this.user.id, {

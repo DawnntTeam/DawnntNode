@@ -37,7 +37,7 @@ IORouter.prototype.routes = function (appio) {
 
   var onlineClient = this.onlineClient
 
-  this.io.use(function *(next) {
+  this.io.use(function * (next) {
     onlineClient.set(this.user.id, this.id)
     yield * next
     onlineClient.delete(this.user.id, this.id)
