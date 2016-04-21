@@ -16,7 +16,7 @@ const routerWozaizheer = require('./routes/wozaizheer')
 const socketNotice = require('./sockets/notice')
 
 router.get('/', function * (next) {
-  this.body = '66688'
+  this.body = '66691'
 })
 
 app.on('error', function (error, context) {

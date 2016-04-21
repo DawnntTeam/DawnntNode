@@ -3,6 +3,7 @@ var router = require('koa-router')({
   prefix: '/user/'
 })
 var sequelize = require('sequelize')
+
 router.get('info', function * () {
   if (this.request.query.id || this.user) {
     var include = [
@@ -21,6 +22,7 @@ router.get('info', function * () {
       this.throw404(this.request.query.id)
       return
     }
+    this.body = user
   } else {
     this.checkAuth()
   }
