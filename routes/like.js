@@ -27,7 +27,7 @@ router.get('create', function * () {
     this.message('已经点赞')
   }
 
-  status.setDataValue('like', sequelize.fn('array_cat', sequelize.col('like'), [parseInt(this.user.id)]))
+  status.setDataValue('like', sequelize.fn('array_cat', sequelize.col('like'), [Number(this.user.id)]))
   yield status.save({
     fields: ['like']
   })

@@ -27,7 +27,7 @@ router.get('publish', function * () {
     user: this.user.id
   })
 
-  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [parseInt(comment.id)]))
+  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [Number(comment.id)]))
   yield status.save({
     fields: ['comment']
   })
@@ -76,7 +76,7 @@ router.get('reply', function * () {
     target: this.request.query.target
   })
 
-  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [parseInt(comment.id)]))
+  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [Number(comment.id)]))
   yield status.save({
     fields: ['comment']
   })
