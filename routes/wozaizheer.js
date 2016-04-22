@@ -1,14 +1,15 @@
 ﻿const key = '73b289d82ef5d57e0ad46ced521fc282'
 const db = require('./../codes/db')
 const crypto = require('crypto')
+const sequelize = require('sequelize')
+
 const router = require('koa-router')({
   prefix: '/wozaizheer/'
 })
 const routerAccount = require('./account')
 const wechatLogin = require('../codes/wozaizheerWechatLogin')
 const routerstatus = require('./../routes/status')
-const sequelize = require('sequelize')
-const R = require('ramda')
+
 router.get('login', function * () {
   var user = yield routerAccount.loginFunction.call(this)
   this.body = { token: router.createToken(this.request.query.phone), user: user }
@@ -42,16 +43,7 @@ router.get('public', function * () {
   var option = {
     where: {map: this.query.map},
     limit: 25,
-    order: 'id DESC',
-    include: [{
-      model: db.Status,
-      attributes: {
-        include: [
-          [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('comment'), 1), 0), 'commentCount'],
-          [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
-        ]
-      }
-    }]
+    order: 'id DESC'
   }
   if (this.query !== undefined && this.query.index !== undefined) {
     if (this.query.index.charAt(0) === '>') {
@@ -68,15 +60,31 @@ router.get('public', function * () {
 
   var bubblemap = yield db.Bubblemap.findAll(option)
 
+  var status = yield db.Status.findAll({
+    where: {
+      id: bubblemap.map((i) => i.id)
+    },
+    population: {
+      model: 'user',
+      col: 'user'
+    },
+    attributes: {
+      include: [
+        [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('comment'), 1), 0), 'commentCount'],
+        [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('like'), 1), 0), 'likeCount']
+      ]
+    }
+  })
+
   if (option.order === 'id ASC') {
-    bubblemap.reverse()
+    status.reverse()
   }
 
-  var statuses = {status: R.map((i) => i.status, bubblemap)}
+  var statuses = {status: status}
 
   if (statuses.status.length > 0) {
-    statuses.next = '<' + statuses.status[statuses.status.length - 1].id
-    statuses.prev = '>' + statuses.status[0].id
+    statuses.next = '<' + status[status.length - 1].id
+    statuses.prev = '>' + status[0].id
   }
 
   this.body = statuses

@@ -1,9 +1,9 @@
-var db = require('./../codes/db')
+const db = require('./../codes/db')
 
-var router = require('koa-router')({
+const router = require('koa-router')({
   prefix: '/status/'
 })
-var sequelize = require('sequelize')
+const sequelize = require('sequelize')
 
 router.get('info', function * () {
   this.required('id')
@@ -38,18 +38,18 @@ router.get('show', function * () {
       col: 'user'
     }, {
       model: 'comment',
+      col: 'comment',
       population: [{
         model: 'user',
         col: 'user'
       }, {
         model: 'comment',
+        col: 'target',
         population: {
           model: 'user',
           col: 'user'
-        },
-        col: 'target'
-      }],
-      col: 'comment'
+        }
+      }]
     }],
     attributes: {
       include: include
@@ -61,6 +61,8 @@ router.get('show', function * () {
     this.throw404(this.query.id)
     return
   }
+  status.dataValues.comment.reverse()
+
   this.body = status
 })
 
