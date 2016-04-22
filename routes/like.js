@@ -1,5 +1,5 @@
 var db = require('./../codes/db')
-
+var socketNotice = require('./../sockets/notice')
 var router = require('koa-router')({
   prefix: '/like/'
 })
@@ -10,6 +10,10 @@ router.get('create', function * () {
   this.required('id')
 
   var status = yield db.Status.findById(this.query.id, {
+    population: {
+      model: 'user',
+      col: 'user'
+    },
     attributes: {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('like'), this.user.id), 'isLike'],
@@ -32,6 +36,8 @@ router.get('create', function * () {
     fields: ['like']
   })
   delete status.dataValues['like']
+
+  yield socketNotice.emitNotice('like', this.user, status.user, status)
 
   status.dataValues.isLike = true
   status.dataValues.likeCount = status.dataValues.likeCount + 1

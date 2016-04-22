@@ -62,6 +62,7 @@ router.get('friendRequest', function * () {
     where: {
       user: this.user.id,
       targetUser: this.query.id,
+      type: 'friendRequest',
       state: false
     }
   })
@@ -71,7 +72,7 @@ router.get('friendRequest', function * () {
     return
   }
 
-  yield socketNotice.emitNotice('friendRequest', this.user.id, this.query.id)
+  yield socketNotice.emitNotice('friendRequest', targetUser, user)
 
   this.body = user
 })
@@ -102,7 +103,8 @@ router.get('refuseFriendRequest', function * () {
     action: 'refuseFriendRequest'
   }
 
-  yield socketNotice.emitNotice('refuseFriendRequest', notify.targetUser, notify.user)
+  // yield socketNotice.emitNotice('refuseFriendRequest', notify.targetUser, notify.user)
+  // 拒绝好友貌似不需要发送通知
 
   this.body = notify
 })
@@ -197,7 +199,7 @@ router.get('acceptFriendRequest', function * () {
     action: 'acceptFriendRequest'
   }
 
-  yield socketNotice.emitNotice('acceptFriendRequest', notify.targetUser, notify.user)
+  yield socketNotice.emitNotice('acceptFriendRequest', targetUser, user)
 
   this.body = notify
 })
