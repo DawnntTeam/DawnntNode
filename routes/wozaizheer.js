@@ -12,20 +12,20 @@ const routerstatus = require('./../routes/status')
 
 router.get('login', function * () {
   var user = yield routerAccount.loginFunction.call(this)
-  this.body = { token: router.createToken(this.request.query.phone), user: user }
+  this.body = { token: router.createToken(this.request.query.phone, user.id), user: user }
 })
 
 router.get('wechatLogin', function * () {
   var user = yield wechatLogin.loginFunction.call(this)
-  this.body = { token: router.createToken(user.openid), user: user }
+  this.body = { token: router.createToken(user.openid, user.id), user: user }
 })
 
-router.createToken = function (mark) {
+router.createToken = function (mark, userId) {
   var ticks = Date.now().toString().substr(3, 8)
   var md5 = crypto.createHash('md5')
-  md5.update(mark + key + ticks)
+  md5.update(mark + userId + key + ticks)
   var code = md5.digest('hex')
-  var token = new Buffer(code + mark + ticks).toString('base64')
+  var token = new Buffer(code + userId + mark + ticks).toString('base64')
   return token
 }
 
@@ -64,6 +64,8 @@ router.get('public', function * () {
     where: {
       id: bubblemap.map((i) => i.id)
     },
+    order: option.order,
+    limit: option.limit,
     population: {
       model: 'user',
       col: 'user'
@@ -77,7 +79,13 @@ router.get('public', function * () {
   })
 
   if (option.order === 'id ASC') {
-    status.reverse()
+    status.sort(function (a, b) {
+      return a.id < b.id ? 1 : -1
+    })
+  } else {
+    status.sort(function (a, b) {
+      return a.id < b.id ? 1 : -1
+    })
   }
 
   var statuses = {status: status}

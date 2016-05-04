@@ -1,4 +1,5 @@
 'use strict'
+const util = require('util')
 module.exports = function * (next) {
   this.log = function (message) {
     console.log(message)
@@ -55,9 +56,17 @@ module.exports = function * (next) {
     }
   }
   this.required = function () {
+    // 用于检查是否存在某项参数或者参数组
     for (var i = 0; i < arguments.length; i++) {
-      if (this.request.query[arguments[i]] === undefined) {
-        this.throw412(arguments[i])
+      if (util.isArray(arguments[i])) {
+        if (arguments[i].every((element) => this.request.query[element] === undefined)) {
+          this.throw412(arguments[i])
+        }
+      // 如果出入的某项是数组，则只要数组中的某一项不为空就通过
+      } else {
+        if (this.request.query[arguments[i]] === undefined) {
+          this.throw412(arguments[i])
+        }
       }
     }
   }
