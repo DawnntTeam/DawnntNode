@@ -138,6 +138,7 @@ router.publishStatus = function * () {
   status.user = user
 
   return status
+// TODO 数据库的content字段个改为不限制长度的text content的长度需要做现在
 }
 
 module.exports = router
