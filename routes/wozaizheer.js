@@ -45,8 +45,10 @@ router.get('public', function * () {
     limit: 25,
     order: 'id DESC'
   }
-  if (this.query !== undefined && this.query.index !== undefined) {
-    if (this.query.index.charAt(0) === '>') {
+  if (this.query.index !== undefined) {
+    if (this.query.index === 'random') {
+      option.limit = 200
+    } else if (this.query.index.charAt(0) === '>') {
       option.where.id = {
         gt: this.query.index.substr(1)
       }
@@ -59,6 +61,10 @@ router.get('public', function * () {
   }
 
   var bubblemap = yield db.Bubblemap.findAll(option)
+
+  if (this.query.index === 'random') {
+    bubblemap = bubblemap.splice(Math.floor(Math.random() * Math.max(0, bubblemap.length - 25)), 25)
+  } // 随机获取连续的25条
 
   var status = yield db.Status.findAll({
     where: {
@@ -90,9 +96,11 @@ router.get('public', function * () {
 
   var statuses = {status: status}
 
-  if (statuses.status.length > 0) {
-    statuses.next = '<' + status[status.length - 1].id
-    statuses.prev = '>' + status[0].id
+  if (this.query.index !== 'random') {
+    if (statuses.status.length > 0) {
+      statuses.next = '<' + status[status.length - 1].id
+      statuses.prev = '>' + status[0].id
+    }
   }
 
   this.body = statuses
