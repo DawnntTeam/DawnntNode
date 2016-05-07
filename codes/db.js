@@ -209,7 +209,7 @@ exprots.Comment = sequelize.define('comment', {
   }
 })
 
-exprots.Notify = sequelize.define('notify', {
+exprots.Notice = sequelize.define('notify', {
   type: {
     type: Sequelize.STRING
   }, // relation commnet
@@ -242,7 +242,7 @@ exprots.Notify = sequelize.define('notify', {
     }
   }
 })
-// exprots.Notify.sync()
+// exprots.Notice.sync()
 exprots.Bubblemap = sequelize.define('bubblemap', {
   map: {
     type: Sequelize.STRING

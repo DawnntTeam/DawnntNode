@@ -106,4 +106,39 @@ router.get('public', function * () {
   this.body = statuses
 })
 
+router.get('deleteBubble', function * () {
+  this.required('id')
+  this.body = yield db.Bubblemap.destroy({where: {id: this.query.id}})
+})
+
+router.get('getBubble', function * () {
+  this.required('map')
+  var option = {
+    where: {map: this.query.map},
+    limit: 200
+  }
+
+  var bubblemap = yield db.Bubblemap.findAll(option)
+
+  var status = yield db.Status.findAll({
+    where: {
+      id: bubblemap.map((i) => i.id)
+    },
+    order: option.order,
+    limit: option.limit
+  })
+
+  if (option.order === 'id ASC') {
+    status.sort(function (a, b) {
+      return a.id < b.id ? 1 : -1
+    })
+  } else {
+    status.sort(function (a, b) {
+      return a.id < b.id ? 1 : -1
+    })
+  }
+
+  this.body = status
+})
+
 module.exports = router

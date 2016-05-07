@@ -58,7 +58,7 @@ router.get('friendRequest', function * () {
     return
   }
 
-  var isRequest = yield db.Notify.count({
+  var isRequest = yield db.Notice.count({
     where: {
       user: this.user.id,
       targetUser: this.query.id,
@@ -82,31 +82,31 @@ router.get('refuseFriendRequest', function * () {
   this.checkAuth()
   this.required('id')
 
-  var notify = yield db.Notify.findById(this.query.id)
-  if (!notify) {
+  var notice = yield db.Notice.findById(this.query.id)
+  if (!notice) {
     this.throw404(this.query.id)
     return
   }
 
-  if (this.user.id !== notify.targetUser) {
+  if (this.user.id !== notice.targetUser) {
     this.throw403('该用户并非向你发起好友申请')
     return
   }
 
-  notify.setDataValue('option', {
+  notice.setDataValue('option', {
     action: 'refuseFriendRequest'
   })
-  notify.save({
+  notice.save({
     fields: ['option']
   })
-  notify.option = {
+  notice.option = {
     action: 'refuseFriendRequest'
   }
 
-  // yield socketNotice.emitNotice('refuseFriendRequest', notify.targetUser, notify.user)
+  // yield socketNotice.emitNotice('refuseFriendRequest', notice.targetUser, notice.user)
   // 拒绝好友貌似不需要发送通知
 
-  this.body = notify
+  this.body = notice
 })
 
 // 同意好友申请
@@ -114,33 +114,33 @@ router.get('acceptFriendRequest', function * () {
   this.checkAuth()
   this.required('id')
 
-  var notify = yield db.Notify.findById(this.query.id)
+  var notice = yield db.Notice.findById(this.query.id)
 
-  if (!notify) {
+  if (!notice) {
     this.throw404(this.query.id)
     return
   }
 
-  if (this.user.id !== notify.targetUser) {
+  if (this.user.id !== notice.targetUser) {
     this.throw403('该用户并非向你发起好友申请')
     return
   }
 
-  var user = yield db.User.findById(notify.user, {
+  var user = yield db.User.findById(notice.user, {
     attributes: {
       include: [
-        [sequelize.fn('array_exist_id', sequelize.col('relation'), notify.targetUser), 'isFriend'],
-        [sequelize.fn('array_exist_id', sequelize.col('black'), notify.targetUser), 'isBlack'],
+        [sequelize.fn('array_exist_id', sequelize.col('relation'), notice.targetUser), 'isFriend'],
+        [sequelize.fn('array_exist_id', sequelize.col('black'), notice.targetUser), 'isBlack'],
         [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
       ]
     }
   })
 
-  var targetUser = yield db.User.findById(notify.targetUser, {
+  var targetUser = yield db.User.findById(notice.targetUser, {
     attributes: {
       include: [
-        [sequelize.fn('array_exist_id', sequelize.col('relation'), notify.user), 'isFriend'],
-        [sequelize.fn('array_exist_id', sequelize.col('black'), notify.user), 'isBlack'],
+        [sequelize.fn('array_exist_id', sequelize.col('relation'), notice.user), 'isFriend'],
+        [sequelize.fn('array_exist_id', sequelize.col('black'), notice.user), 'isBlack'],
         [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'friendCount']
       ]
     }
@@ -189,19 +189,19 @@ router.get('acceptFriendRequest', function * () {
     return
   }
 
-  notify.setDataValue('option', {
+  notice.setDataValue('option', {
     action: 'acceptFriendRequest'
   })
-  notify.save({
+  notice.save({
     fields: ['option']
   })
-  notify.option = {
+  notice.option = {
     action: 'acceptFriendRequest'
   }
 
   yield socketNotice.emitNotice('acceptFriendRequest', targetUser, user)
 
-  this.body = notify
+  this.body = notice
 })
 
 router.get('destroy', function * () {

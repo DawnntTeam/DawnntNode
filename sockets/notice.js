@@ -6,7 +6,7 @@ var router = require('./../codes/koa.io-router')({
 router.emitNotice = function * (type, user, targetUser, status, comment, reply) {
   if (user === targetUser) return
   // 同样的用户不需要发送通知
-  var temp = yield db.Notify.create({
+  var temp = yield db.Notice.create({
     type: type,
     state: false,
     user: user.id,
