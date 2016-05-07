@@ -181,7 +181,7 @@ exprots.Status = sequelize.define('status', {
     }
   }
 })
-// exprots.Status.sync()
+
 exprots.Comment = sequelize.define('comment', {
   longitude: {
     type: Sequelize.DECIMAL
@@ -242,7 +242,7 @@ exprots.Notice = sequelize.define('notify', {
     }
   }
 })
-// exprots.Notice.sync()
+
 exprots.Bubblemap = sequelize.define('bubblemap', {
   map: {
     type: Sequelize.STRING
@@ -280,7 +280,6 @@ exprots.WozaizheerWechatUser = sequelize.define('wozaizheerWechatUser', {
       return new Date(this.id / 1000) }
   }
 })
-// exprots.WozaizheerWechatUser.sync({force: true})
 
 exprots.Token = sequelize.define('token', {
   token: { type: Sequelize.STRING },
