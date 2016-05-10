@@ -33,7 +33,14 @@ router.get('unread', function * () {
     attributes: ['type', [sequelize.fn('count', sequelize.col('id')), 'count']],
     group: ['type']
   })
-  var unread = {}
+  var unread = {
+    refuseFriendRequest: 0,
+    acceptFriendRequest: 0,
+    friendRequest: 0,
+    like: 0,
+    reply: 0,
+    comment: 0
+  }
   notice.each(function (item) {
     unread[item['type']] = parseInt(item['dataValues']['count'])
   })
