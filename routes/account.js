@@ -8,6 +8,11 @@ var ihuyi = new (require('ihuyi106'))('cf_fxwlkj', '9fegEY')
 
 var phoneRegexp = new RegExp('0?(13[0-9]|15[012356789]|17[0678]|18[0-9]|14[57])[0-9]{8}$')
 router.get('sendMessage', function * () {
+  var message = yield router.sendMessage.call(this)
+  this.body = message
+})
+
+router.sendMessage = function * (huyi) {
   this.required('phone')
   var phone = this.request.query.phone
   if (!phoneRegexp.test(phone)) {
@@ -19,20 +24,13 @@ router.get('sendMessage', function * () {
     code: code
   })
 
-  if (phone === '15112098161' || phone === '15112098162' || phone === '15112098163' || phone === '18620072012' || phone === '13760671440' || phone === '13682268885' || phone === '15914352014') {
-    this.body = {
-      code: code
+  ;(huyi || ihuyi).send(phone, '您的验证码是：' + code + '，（10分钟内有效）。请不要把验证码泄露给其他人。', function (err, smsId) {
+    if (err) {
+      this.error(err)
     }
-    return
-  } else {
-    this.body = {}
-    ihuyi.send(phone, '您的验证码是：' + code + '，（10分钟内有效）。请不要把验证码泄露给其他人。', function (err, smsId) {
-      if (err) {
-        this.error(err)
-      }
-    })
-  }
-})
+  })
+  return {}
+}
 
 router.loginFunction = function * () {
   if (this.user) {

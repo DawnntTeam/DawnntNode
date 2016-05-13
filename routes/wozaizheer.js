@@ -10,6 +10,13 @@ const routerAccount = require('./account')
 const wechatLogin = require('../codes/wozaizheerWechatLogin')
 const routerstatus = require('./../routes/status')
 
+const ihuyi = new (require('ihuyi106'))('cf_qjgk', 'qjgk123456789')
+
+router.get('sendMessage', function * () {
+  var message = yield routerAccount.sendMessage.call(this, ihuyi)
+  this.body = message
+})
+
 router.get('login', function * () {
   var user = yield routerAccount.loginFunction.call(this)
   this.body = { token: router.createToken(this.request.query.phone, user.id), user: user }
