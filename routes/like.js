@@ -1,5 +1,5 @@
 var db = require('./../codes/db')
-
+var socketNotice = require('./../sockets/notice')
 var router = require('koa-router')({
   prefix: '/like/'
 })
@@ -10,6 +10,10 @@ router.get('create', function * () {
   this.required('id')
 
   var status = yield db.Status.findById(this.query.id, {
+    population: {
+      model: 'user',
+      col: 'user'
+    },
     attributes: {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('like'), this.user.id), 'isLike'],
@@ -27,11 +31,13 @@ router.get('create', function * () {
     this.message('已经点赞')
   }
 
-  status.setDataValue('like', sequelize.fn('array_cat', sequelize.col('like'), [parseInt(this.user.id)]))
+  status.setDataValue('like', sequelize.fn('array_cat', sequelize.col('like'), [Number(this.user.id)]))
   yield status.save({
     fields: ['like']
   })
   delete status.dataValues['like']
+
+  yield socketNotice.emitNotice('like', this.user, status.user, status)
 
   status.dataValues.isLike = true
   status.dataValues.likeCount = status.dataValues.likeCount + 1
@@ -59,7 +65,7 @@ router.get('destroy', function * () {
     this.message('没有点赞')
   }
 
-  status.setDataValue('like', sequelize.fn('array_remove', sequelize.col('like'), parseInt(this.user.id)))
+  status.setDataValue('like', sequelize.fn('array_remove', sequelize.col('like'), Number(this.user.id)))
   yield status.save({
     fields: ['like']
   })

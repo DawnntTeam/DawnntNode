@@ -36,12 +36,8 @@ var auth = function * (next) {
   // 如果cache没有数据则会查询数据库
   }
   token = null
-  try {
-    yield * next
-  } catch (error) {
-    console.error(error)
-    this.throw500()
-  }
+
+  yield * next
 }
 
 module.exports = auth

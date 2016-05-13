@@ -181,7 +181,7 @@ exprots.Status = sequelize.define('status', {
     }
   }
 })
-// exprots.Status.sync()
+
 exprots.Comment = sequelize.define('comment', {
   longitude: {
     type: Sequelize.DECIMAL
@@ -209,7 +209,7 @@ exprots.Comment = sequelize.define('comment', {
   }
 })
 
-exprots.Notify = sequelize.define('notify', {
+exprots.Notice = sequelize.define('notify', {
   type: {
     type: Sequelize.STRING
   }, // relation commnet
@@ -242,7 +242,7 @@ exprots.Notify = sequelize.define('notify', {
     }
   }
 })
-// exprots.Notify.sync()
+
 exprots.Bubblemap = sequelize.define('bubblemap', {
   map: {
     type: Sequelize.STRING
@@ -254,6 +254,8 @@ exprots.Bubblemap = sequelize.define('bubblemap', {
     }
   }
 })
+exprots.Bubblemap.hasOne(exprots.Status, { foreignKey: 'id' })
+
 exprots.PhoneUser = sequelize.define('phoneuser', {
   phone: {
     type: Sequelize.STRING
@@ -278,7 +280,6 @@ exprots.WozaizheerWechatUser = sequelize.define('wozaizheerWechatUser', {
       return new Date(this.id / 1000) }
   }
 })
-// exprots.WozaizheerWechatUser.sync({force: true})
 
 exprots.Token = sequelize.define('token', {
   token: { type: Sequelize.STRING },

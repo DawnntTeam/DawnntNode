@@ -42,9 +42,9 @@ IORouter.prototype.routes = function (appio) {
   var onlineClient = this.onlineClient
 
   this.io.use(function * (next) {
-    onlineClient.set(this.user.id, this.id)
+    if (this.user) onlineClient.set(this.user.id, this.id)
     yield * next
-    onlineClient.delete(this.user.id, this.id)
+    if (this.user) onlineClient.delete(this.user.id, this.id)
   })
   // 把所有上线的用户都添加到一个存储,在emitById中可以被调用
 

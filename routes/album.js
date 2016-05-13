@@ -35,9 +35,9 @@ router.get('show', function * () {
 
 router.get('destroy', function * () {
   this.checkAuth()
-  this.required('id')
+  this.required(['id', 'ids'])
   var user = yield db.User.findById(this.user.id)
-  user.setDataValue('album', sequelize.fn('multi_int_array_remove', sequelize.col('album'), [Number(this.query.id)]))
+  user.setDataValue('album', sequelize.fn('array_remove_id', sequelize.col('album'), this.query.ids.split(',').map(Number)))
   yield user.save({
     fields: ['album']
   })

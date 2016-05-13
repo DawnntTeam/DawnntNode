@@ -27,7 +27,7 @@ router.get('publish', function * () {
     user: this.user.id
   })
 
-  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [parseInt(comment.id)]))
+  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [Number(comment.id)]))
   yield status.save({
     fields: ['comment']
   })
@@ -35,7 +35,7 @@ router.get('publish', function * () {
 
   comment.status = status
   comment.user = yield db.User.findById(this.user.id)
-  yield socketNotice.emitNotice('comment', this.user.id, status.user.id, comment.id, status.id)
+  yield socketNotice.emitNotice('comment', this.user, status.user, status, comment)
   this.body = comment
 })
 
@@ -76,7 +76,7 @@ router.get('reply', function * () {
     target: this.request.query.target
   })
 
-  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [parseInt(comment.id)]))
+  status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [Number(comment.id)]))
   yield status.save({
     fields: ['comment']
   })
@@ -87,9 +87,9 @@ router.get('reply', function * () {
   comment.user = yield db.User.findById(this.user.id)
 
   if (status.user.id !== target.user.id) {
-    yield socketNotice.emitNotice('comment', this.user.id, status.user.id, comment.id, status.id)
-  } // 如果评论和状态是同一人，则只发送恢复的通知
-  yield socketNotice.emitNotice('reply', this.user.id, target.user.id, comment.id, status.id, target.id)
+    yield socketNotice.emitNotice('comment', this.user, status.user, status, comment)
+  } // 如果评论和状态是作者，则只发送回复的通知
+  yield socketNotice.emitNotice('reply', this.user, target.user, status, comment, target)
 
   this.body = comment
 })
