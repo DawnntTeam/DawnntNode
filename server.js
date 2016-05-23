@@ -16,7 +16,7 @@ const routerWozaizheer = require('./routes/wozaizheer')
 const socketNotice = require('./sockets/notice')
 
 router.get('/', function * (next) {
-  this.body = 'version 1.2.1.3.4.42.3.42.1.2345'
+  this.body = 'version 1.2.1.3.4.42.3.42.1.2354'
 })
 
 app.on('error', function (error, context) {

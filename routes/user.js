@@ -85,7 +85,6 @@ router.get('save', function * () {
     email: user.email,
     head: user.head,
     birthday: user.birthday,
-    black: user.black,
     sex: user.sex,
     desc: user.desc
   })
