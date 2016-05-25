@@ -293,6 +293,7 @@ exprots.Token = sequelize.define('token', {
   }
 })
 
+exprots.WechatTicket = sequelize.define('wechatTicket', {
   ticket: { type: Sequelize.STRING },
   expires: { type: Sequelize.DATE, defaultValue: Date.now }
 }, {
