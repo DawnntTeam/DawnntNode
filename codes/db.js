@@ -13,23 +13,26 @@ var sequelize = new Sequelize(config.getSQLConfig(), {
 
 var exprots = {}
 sequelize.addHook('beforeDefine', function (attributes, options) {
-  var temp = {}
-  for (let key in attributes) {
-    temp[key] = attributes[key]
-    delete attributes[key]
-  }
-  attributes.id = {
-    type: Sequelize.BIGINT(16),
-    allowNull: false,
-    primaryKey: true,
-    defaultValue: function () {
-      return Date.now() * 1000
+  if (!(options.hasOwnProperty('noid') && options.noid === true)) {
+    // 如果带有noid则不需要添加id列
+    var temp = {}
+    for (let key in attributes) {
+      temp[key] = attributes[key]
+      delete attributes[key]
     }
+    attributes.id = {
+      type: Sequelize.BIGINT(16),
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: function () {
+        return Date.now() * 1000
+      }
+    }
+    for (let key in temp) {
+      attributes[key] = temp[key]
+    }
+  // 用于调整id在列中的顺序排第一
   }
-  for (let key in temp) {
-    attributes[key] = temp[key]
-  }
-// 用于调整id在列中的顺序排第一
 })
 
 sequelize.addHook('afterFind', function (attributes, options) {
@@ -130,7 +133,7 @@ exprots.User = sequelize.define('user', {
   sex: {
     type: Sequelize.ENUM,
     values: ['male', 'female', 'neutral']
-  }, // , enum: ['male', 'female', 'neutral']
+  },
   phone: {
     type: Sequelize.STRING
   },
@@ -266,7 +269,6 @@ exprots.PhoneUser = sequelize.define('phoneuser', {
       return new Date(this.id / 1000)
     }
   }
-
 })
 
 exprots.WozaizheerWechatUser = sequelize.define('wozaizheerWechatUser', {
@@ -277,7 +279,8 @@ exprots.WozaizheerWechatUser = sequelize.define('wozaizheerWechatUser', {
 }, {
   getterMethods: {
     create_at: function () {
-      return new Date(this.id / 1000) }
+      return new Date(this.id / 1000)
+    }
   }
 })
 
@@ -293,25 +296,19 @@ exprots.Token = sequelize.define('token', {
   }
 })
 
-exprots.WechatTicket = sequelize.define('wechatTicket', {
-  ticket: { type: Sequelize.STRING },
-  expires: { type: Sequelize.DATE, defaultValue: Date.now }
-}, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
-    }
-  }
-})
+exprots.MemoryCache = sequelize.define('memoryCache', {
+  key: {type: Sequelize.STRING, allowNull: false, primaryKey: true},
+  vaule: {type: Sequelize.STRING},
+  expires: { type: Sequelize.DATE }
+}, {noid: true})
 
 exprots.PhoneCode = sequelize.define('phoneCode', {
   phone: { type: Sequelize.STRING },
   code: { type: Sequelize.STRING }
-},
-  {
-    getterMethods: {
-      create_at: function () { return new Date(this.id / 1000) }
-    }
-  })
+}, {
+  getterMethods: {
+    create_at: function () { return new Date(this.id / 1000) }
+  }
+})
 
 module.exports = exprots
