@@ -293,6 +293,16 @@ exprots.Token = sequelize.define('token', {
   }
 })
 
+  ticket: { type: Sequelize.STRING },
+  expires: { type: Sequelize.DATE, defaultValue: Date.now }
+}, {
+  getterMethods: {
+    create_at: function () {
+      return new Date(this.id / 1000)
+    }
+  }
+})
+
 exprots.PhoneCode = sequelize.define('phoneCode', {
   phone: { type: Sequelize.STRING },
   code: { type: Sequelize.STRING }
