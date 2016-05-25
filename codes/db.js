@@ -298,7 +298,7 @@ exprots.Token = sequelize.define('token', {
 
 exprots.MemoryCache = sequelize.define('memoryCache', {
   key: {type: Sequelize.STRING, allowNull: false, primaryKey: true},
-  vaule: {type: Sequelize.STRING},
+  value: {type: Sequelize.STRING},
   expires: { type: Sequelize.DATE }
 }, {noid: true})
 

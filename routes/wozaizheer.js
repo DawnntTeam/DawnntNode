@@ -1,4 +1,6 @@
-﻿const key = '73b289d82ef5d57e0ad46ced521fc282'
+﻿'use strict'
+
+const key = '73b289d82ef5d57e0ad46ced521fc282'
 const db = require('./../codes/db')
 const crypto = require('crypto')
 const sequelize = require('sequelize')
@@ -34,6 +36,47 @@ router.createToken = function (mark, userId) {
   var code = md5.digest('hex')
   var token = new Buffer(code + userId + mark + ticks).toString('base64')
   return token
+}
+
+router.get('getParam', function * () {
+  var data = {
+    'jsapi_ticket': yield wechatLogin.getTicket(),
+    'nonceStr': router.createNonceStr(),
+    'timestamp': new Date().getTime(),
+    'url': this.request.accept.headers.referer
+  }
+  var string = 'jsapi_ticket=' + data.jsapi_ticket +
+  '&noncestr=' + data.nonceStr +
+  '&timestamp=' + data.timestamp +
+  '&url=' + data.url
+  var sha1 = crypto.createHash('sha1')
+  sha1.update(string, 'utf8')
+  var param = {
+    debug: false,
+    appId: 'wxc0a647146519032d',
+    timestamp: data.timestamp,
+    nonceStr: data.nonceStr,
+    signature: sha1.digest('hex'),
+    jsApiList: [
+      'onMenuShareTimeline',
+      'onMenuShareAppMessage',
+      'onMenuShareQQ',
+      'onMenuShareWeibo'
+    ]
+  }
+  this.body = param
+})
+
+router.createNonceStr = function (length) {
+  length = length || 16
+  var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+  // 默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1
+  var maxPos = chars.length
+  var str = ''
+  for (let i = 0; i < length; i++) {
+    str += chars.charAt(Math.floor(Math.random() * maxPos))
+  }
+  return str
 }
 
 router.get('publish', function * () {

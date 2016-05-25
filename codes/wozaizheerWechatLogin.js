@@ -33,6 +33,31 @@ exports.getUserInfo = function * (access_token, openid) {
   return JSON.parse(data.body)
 }
 
+exports.getTicket = function * () {
+  var ticket = yield db.MemoryCache.find({ where: { key: 'wozaizheerTicket' } })
+  var nowDate = new Date().getTime()
+  if (ticket === null || ticket.dataValues.expires.getTime() < nowDate) {
+    var token = yield exports.getAccessToken()
+    var apiUrl = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=' + token.access_token + '&type=jsapi'
+    var data = yield request({
+      method: 'GET',
+      url: apiUrl
+    })
+    ticket.value = JSON.parse(data.body).ticket
+    ticket.expries = new Date().getTime() + (6600 * 1000)
+    yield ticket.save()
+    // yield db.MemoryCache.create({
+    //   key: 'wozaizheerTicket',
+    //   value: JSON.parse(data.body).ticket,
+    //   expires: 
+    // })
+    ticket = JSON.parse(data.body).ticket
+  } else {
+    ticket = ticket.dataValues.value
+  }
+  return ticket
+}
+
 exports.loginFunction = function * () {
   var accessToken = yield exports.getOauthAccessToken(this.query.code)
   if (accessToken.errcode !== undefined) {
@@ -43,8 +68,11 @@ exports.loginFunction = function * () {
   var user
   if (wechatUser != null) {
     user = yield db.User.findById(wechatUser.id)
+    wechatUser.accessToken = accessToken.access_token
+    wechatUser.refresToken = accessToken.refresh_token
+    wechatUser.save()
   } else {
-    var token = yield exports.getAccessToken
+    var token = yield exports.getAccessToken()
     if (token.errcode !== undefined) {
       this.throw400(token.errcode)
     }
