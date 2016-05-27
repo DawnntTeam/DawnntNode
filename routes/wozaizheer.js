@@ -52,17 +52,10 @@ router.get('getParam', function * () {
   var sha1 = crypto.createHash('sha1')
   sha1.update(string, 'utf8')
   var param = {
-    debug: false,
     appId: 'wxc0a647146519032d',
     timestamp: data.timestamp,
     nonceStr: data.nonceStr,
-    signature: sha1.digest('hex'),
-    jsApiList: [
-      'onMenuShareTimeline',
-      'onMenuShareAppMessage',
-      'onMenuShareQQ',
-      'onMenuShareWeibo'
-    ]
+    signature: sha1.digest('hex')
   }
   this.body = param
 })
