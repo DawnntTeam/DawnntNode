@@ -1,10 +1,11 @@
 'use strict'
-var db = require('./../codes/db')
-var router = require('koa-router')({
+const db = require('./../codes/db')
+const router = require('koa-router')({
   prefix: '/account/'
 })
-var cache = require('memory-cache')
-var ihuyi = new (require('ihuyi106'))('cf_fxwlkj', '9fegEY')
+const wechatLogin = require('../codes/wechatLogin')
+const cache = require('memory-cache')
+const ihuyi = new (require('ihuyi106'))('cf_fxwlkj', '9fegEY')
 
 var phoneRegexp = new RegExp('0?(13[0-9]|15[012356789]|17[0678]|18[0-9]|14[57])[0-9]{8}$')
 router.get('sendMessage', function * () {
@@ -129,4 +130,11 @@ router.get('logout', function * () {
   this.user = null
   this.body = {}
 })
+router.get('wechatLogin', function * () {
+  var user = yield wechatLogin.loginFunction.call(this)
+  yield router.Token.call(this, user)
+  user.openid = '------'
+  this.body = user
+})
+
 module.exports = router

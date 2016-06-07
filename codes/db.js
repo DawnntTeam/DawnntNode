@@ -144,8 +144,7 @@ exprots.User = sequelize.define('user', {
     type: Sequelize.STRING
   },
   birthday: {
-    type: Sequelize.DATE,
-    defaultValue: Date.now
+    type: Sequelize.DATEONLY
   },
   desc: {
     type: Sequelize.STRING
@@ -153,7 +152,7 @@ exprots.User = sequelize.define('user', {
   location: {
     type: Sequelize.STRING
   },
-  albumCover: {
+  cover: {
     type: Sequelize.STRING
   }
 }, {
@@ -163,7 +162,6 @@ exprots.User = sequelize.define('user', {
     }
   }
 })
-
 exprots.Status = sequelize.define('status', {
   longitude: {
     type: Sequelize.DECIMAL
@@ -271,7 +269,7 @@ exprots.PhoneUser = sequelize.define('phoneuser', {
   }
 })
 
-exprots.WozaizheerWechatUser = sequelize.define('wozaizheerWechatUser', {
+exprots.wechatUser = sequelize.define('wechatUser', {
   openid: { type: Sequelize.STRING },
   accessToken: { type: Sequelize.STRING },
   refreshToken: { type: Sequelize.STRING },

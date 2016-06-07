@@ -12,7 +12,6 @@ const routerLike = require('./routes/like')
 const routerNotice = require('./routes/notice')
 const routerUpload = require('./routes/upload')
 const routerAlbum = require('./routes/album')
-const routerWozaizheer = require('./routes/wozaizheer')
 const socketNotice = require('./sockets/notice')
 
 router.get('/', function * (next) {
@@ -39,7 +38,6 @@ app
   .use(routerNotice.routes())
   .use(routerUpload.routes())
   .use(routerAlbum.routes())
-  .use(routerWozaizheer.routes())
   .use(router.allowedMethods())
 
 socketNotice.routes(app.io)
