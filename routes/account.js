@@ -3,7 +3,7 @@ const db = require('./../codes/db')
 const router = require('koa-router')({
   prefix: '/account/'
 })
-const wechatLogin = require('../codes/wechatLogin')
+const wechat = require('../codes/wechat')
 const cache = require('memory-cache')
 const ihuyi = new (require('ihuyi106'))('cf_fxwlkj', '9fegEY')
 
@@ -131,9 +131,8 @@ router.get('logout', function * () {
   this.body = {}
 })
 router.get('wechatLogin', function * () {
-  var user = yield wechatLogin.loginFunction.call(this)
+  var user = yield wechat.login.call(this)
   yield router.Token.call(this, user)
-  user.openid = '------'
   this.body = user
 })
 

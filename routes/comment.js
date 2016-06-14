@@ -35,7 +35,7 @@ router.get('publish', function * () {
 
   comment.status = status
   comment.user = yield db.User.findById(this.user.id)
-  yield socketNotice.emitNotice('comment', this.user, status.user, status, comment)
+  yield socketNotice.emitNotice('comment', this.user, status.user, {status: status, comment: comment})
   this.body = comment
 })
 
@@ -87,9 +87,9 @@ router.get('reply', function * () {
   comment.user = yield db.User.findById(this.user.id)
 
   if (status.user.id !== target.user.id) {
-    yield socketNotice.emitNotice('comment', this.user, status.user, status, comment)
+    yield socketNotice.emitNotice('comment', this.user, status.user, {status: status, comment: comment})
   } // 如果评论和状态是作者，则只发送回复的通知
-  yield socketNotice.emitNotice('reply', this.user, target.user, status, comment, target)
+  yield socketNotice.emitNotice('reply', this.user, target.user, {status: status, comment: comment, target: target})
 
   this.body = comment
 })

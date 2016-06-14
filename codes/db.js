@@ -41,33 +41,37 @@ sequelize.addHook('afterFind', function (attributes, options) {
       var promises = []
       options.population.forEach(function (population) {
         var findOptions = buildOptions(attributes, population)
-        var model = sequelize.models[population.model]
-        if (Array.isArray(attributes)) {
-          let a = model.findAll(findOptions).then(function (result) {
-            buildData(result, attributes.map((item) => item.dataValues), population.col)
-          })
-          promises.push(a)
-        } else {
-          let a = model.findAll(findOptions).then(function (result) {
-            buildData(result, attributes.dataValues, population.col)
-          })
-          promises.push(a)
+        if (findOptions) {
+          var model = sequelize.models[population.model]
+          if (Array.isArray(attributes)) {
+            let a = model.findAll(findOptions).then(function (result) {
+              buildData(result, attributes.map((item) => item.dataValues), population.col)
+            })
+            promises.push(a)
+          } else {
+            let a = model.findAll(findOptions).then(function (result) {
+              buildData(result, attributes.dataValues, population.col)
+            })
+            promises.push(a)
+          }
         }
       })
       return Sequelize.Promise.all(promises)
     } else {
       var findOptions = buildOptions(attributes, options.population)
-      var model = sequelize.models[options.population.model]
-      if (Array.isArray(attributes)) {
-        if (attributes.length > 0) {
+      if (findOptions) {
+        var model = sequelize.models[options.population.model]
+        if (Array.isArray(attributes)) {
+          if (attributes.length > 0) {
+            return model.findAll(findOptions).then(function (result) {
+              buildData(result, attributes.map((item) => item.dataValues), options.population.col)
+            })
+          }
+        } else {
           return model.findAll(findOptions).then(function (result) {
-            buildData(result, attributes.map((item) => item.dataValues), options.population.col)
+            buildData(result, attributes.dataValues, options.population.col)
           })
         }
-      } else {
-        return model.findAll(findOptions).then(function (result) {
-          buildData(result, attributes.dataValues, options.population.col)
-        })
       }
     }
   }
@@ -84,20 +88,27 @@ function buildOptions (attributes, population) {
   }
   if (Array.isArray(attributes)) {
     attributes.forEach(function (attr) {
-      if (Array.isArray(attr.dataValues[population.col])) {
-        findOptions.where.id.push.apply(findOptions.where.id, attr.dataValues[population.col])
+      if (Array.isArray(getValue(attr.dataValues, population.col))) {
+        findOptions.where.id.push.apply(findOptions.where.id, getValue(attr.dataValues, population.col))
       } else {
-        findOptions.where.id.push(attr.dataValues[population.col])
+        findOptions.where.id.push(getValue(attr.dataValues, population.col))
       }
     })
   } else {
-    if (Array.isArray(attributes.dataValues[population.col])) {
-      findOptions.where.id.push.apply(findOptions.where.id, attributes.dataValues[population.col])
+    if (Array.isArray(getValue(attributes.dataValues, population.col))) {
+      findOptions.where.id.push.apply(findOptions.where.id, getValue(attributes.dataValues, population.col))
     } else {
-      findOptions.where.id.push(attributes.dataValues[population.col])
+      findOptions.where.id.push(getValue(attributes.dataValues, population.col))
     }
   }
-  findOptions.where.id = Array.from(new Set(findOptions.where.id))
+  if (findOptions.where.id.length !== 0) {
+    findOptions.where.id = Array.from(new Set(findOptions.where.id))
+    if (findOptions.where.id.all(undefined)) {
+      findOptions = null
+    }
+  } else {
+    findOptions = null
+  }
   return findOptions
 }
 
@@ -109,19 +120,40 @@ function buildData (result, data, col) {
   if (Array.isArray(data)) {
     if (col) {
       for (let i = 0; i < data.length; i++) {
-        data[i][col] = resultMap[data[i][col]]
+        setValue(data[i], col, resultMap[getValue(data[i], col)])
       }
     } else {
-      data[col] = resultMap[data[col]]
+      setValue(data, col, resultMap[getValue(data, col)])
     }
   } else {
-    if (Array.isArray(data[col])) {
-      for (let i = 0; i < data[col].length; i++) {
-        data[col][i] = resultMap[data[col][i]]
+    if (Array.isArray(getValue(data, col))) {
+      for (let i = 0; i < getValue(data, col).length; i++) {
+        getValue(data, col)[i] = resultMap[getValue(data, col)[i]]
       }
     } else {
-      data[col] = resultMap[data[col]]
+      setValue(data, col, resultMap[getValue(data, col)])
     }
+  }
+}
+
+function getValue (data, col) {
+  if (Array.isArray(col)) {
+    for (var i = 0; i < col.length - 1; i++) {
+      data = data[col[i]]
+    }
+    return data[col[i]]
+  } else {
+    return data[col]
+  }
+}
+function setValue (data, col, value) {
+  if (Array.isArray(col)) {
+    for (var i = 0; i < col.length - 1; i++) {
+      data = data[col[i]]
+    }
+    data[col[i]] = value
+  } else {
+    data[col] = value
   }
 }
 exprots.sequelize = sequelize
@@ -210,7 +242,7 @@ exprots.Comment = sequelize.define('comment', {
   }
 })
 
-exprots.Notice = sequelize.define('notify', {
+exprots.Notice = sequelize.define('notice', {
   type: {
     type: Sequelize.STRING
   }, // relation commnet
@@ -224,15 +256,6 @@ exprots.Notice = sequelize.define('notify', {
   targetUser: {
     type: Sequelize.BIGINT
   }, // 目标用户
-  status: {
-    type: Sequelize.BIGINT
-  }, // 发表的信息（status）id
-  comment: {
-    type: Sequelize.BIGINT
-  }, // 评论id
-  reply: {
-    type: Sequelize.BIGINT
-  },
   option: {
     type: Sequelize.JSONB
   }
@@ -269,7 +292,7 @@ exprots.PhoneUser = sequelize.define('phoneuser', {
   }
 })
 
-exprots.wechatUser = sequelize.define('wechatUser', {
+exprots.WechatUser = sequelize.define('wechatUser', {
   openid: { type: Sequelize.STRING },
   accessToken: { type: Sequelize.STRING },
   refreshToken: { type: Sequelize.STRING },

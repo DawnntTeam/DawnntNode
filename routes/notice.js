@@ -85,14 +85,15 @@ router.get('show', function * () {
       model: 'user',
       col: 'user'
     }, {
-      model: 'user',
-      col: 'targetUser'
-    }, {
       model: 'status',
-      col: 'status'
+      col: [
+        'option', 'status'
+      ]
     }, {
       model: 'comment',
-      col: 'comment'
+      col: [
+        'option', 'comment'
+      ]
     }, {
       model: 'comment',
       col: 'reply'
@@ -108,24 +109,6 @@ router.get('show', function * () {
     date.prev = '>' + notice[0].id
   }
   this.body = date
-})
-
-router.get('info', function * () {
-  this.checkAuth()
-  if (this.query !== undefined && this.query.id !== undefined) {
-    var notice = yield db.Notice.findById(this.query.id, {
-      population: [{
-        model: 'user',
-        col: 'targetUser'
-      }, {
-        model: 'user',
-        col: 'user'
-      }]
-    })
-    this.body = notice
-  } else {
-    this.throw404('id')
-  }
 })
 
 router.unread = function * (targetUser) {

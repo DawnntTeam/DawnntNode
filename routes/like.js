@@ -37,7 +37,7 @@ router.get('create', function * () {
   })
   delete status.dataValues['like']
 
-  yield socketNotice.emitNotice('like', this.user, status.user, status)
+  yield socketNotice.emitNotice('like', this.user, status.user, {status: status})
 
   status.dataValues.isLike = true
   status.dataValues.likeCount = status.dataValues.likeCount + 1
