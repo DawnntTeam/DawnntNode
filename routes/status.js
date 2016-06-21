@@ -1,5 +1,5 @@
 const db = require('./../codes/db')
-
+const util = require('util')
 const router = require('koa-router')({
   prefix: '/status/'
 })
@@ -91,41 +91,56 @@ router.publicStatus = function * () {
     }
   }
 
-  if (this.query !== undefined && this.query.index !== undefined) {
-    if (this.query.index.charAt(0) === '>') {
-      option.where.id = {
-        gt: this.query.index.substr(1)
-      }
-      option.order = 'id ASC'
-    } else if (this.query.index.charAt(0) === '<') {
-      option.where.id = {
-        lt: this.query.index.substr(1)
+  if (this.query !== undefined) {
+    if (this.query.index !== undefined) {
+      if (this.query.index.charAt(0) === '>') {
+        option.where.id = {
+          gt: this.query.index.substr(1)
+        }
+        option.order = 'id ASC'
+      } else if (this.query.index.charAt(0) === '<') {
+        option.where.id = {
+          lt: this.query.index.substr(1)
+        }
       }
     }
   }
 
   var status = yield db.Status.findAll(option)
 
-  if (option.order === 'id ASC') {
-    status.reverse()
-  }
-
   var statuses = {status: status}
 
   if (status.length > 0) {
+    if (option.order === 'id ASC') {
+      status.reverse()
+    }
     statuses.next = '<' + status[status.length - 1].id
     statuses.prev = '>' + status[0].id
+  } else if (option.where.id.gt) {
+    statuses.prev = this.query.index
   }
+
   return statuses
 }
 
 router.publishStatus = function * () {
   this.checkAuth()
   this.required('content')
+  var photo = this.request.query['photo[]']
+
+  if (photo) {
+    if (util.isArray(photo)) {
+      photo = this.request.query['photo[]'].map(function (item) { return parseInt(item) })
+    } else {
+      photo = [parseInt(photo)]
+    }
+  }
+
   var status = yield db.Status.create({
     content: this.request.query.content,
     longitude: this.request.query.longitude,
     latitude: this.request.query.latitude,
+    photo: photo,
     user: this.user.id
   })
 

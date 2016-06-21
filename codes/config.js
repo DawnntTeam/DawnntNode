@@ -12,7 +12,8 @@ module.exports = {
     return {
       accessKey: 'w8wLk3Bx4BmVSz2tCG6gRTTyiCGiSnIMqYvMvMiM',
       secretKey: 'YZ7q2mpTywxLFRm31H9fnfmtyY1eS8JRuccFq9oI',
-      host: 'o8nh3l43k.bkt.clouddn.com'
+      host: 'static.qumaopao.com',
+      storage: 'qumaopao'
     }
   }
 }

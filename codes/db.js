@@ -206,6 +206,9 @@ exprots.Status = sequelize.define('status', {
   },
   user: {
     type: Sequelize.BIGINT
+  },
+  photo: {
+    type: Sequelize.ARRAY(Sequelize.BIGINT)
   }
 }, {
   getterMethods: {
