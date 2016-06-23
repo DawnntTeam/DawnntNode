@@ -16,21 +16,17 @@ router.get('create', function * () {
 })
 
 router.get('show', function * () {
-  var page = this.pagingSlice(this.query.index)
-  var user = yield db.User.findById(this.query.id || this.user.id, {
+  if (!(this.query.id || this.user))  this.checkAuth()
+
+  var options = {
     attributes: {
       include: [
-        [sequelize.fn('array_slice_id', sequelize.col('album'), page.slice[0], page.slice[1]), 'album'],
         [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('album'), 1), 0), 'albumCount']
       ]
     }
-  })
-  if (user) {
-    this.pagingPointer(this.query.index, user, 'album')
-    this.body = user
-  } else {
-    this.throw404('id')
   }
+
+  this.body = yield this.arrayQuery(db.User, this.query.id || this.user.id, options, 'album', this.query.index)
 })
 
 router.get('destroy', function * () {

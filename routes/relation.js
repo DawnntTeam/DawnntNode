@@ -213,11 +213,11 @@ router.get('destroy', function * () {
     return
   }
 
-  if (this.request.query.id === this.user.id) {
+  if (this.query.id === this.user.id) {
     this.throw403('id')
   }
 
-  var user = yield db.User.findById(this.request.query.id, {
+  var user = yield db.User.findById(this.query.id, {
     attributes: {
       include: [
         [sequelize.fn('array_exist_id', sequelize.col('relation'), this.user.id), 'isFriend'],
@@ -276,32 +276,21 @@ router.get('destroy', function * () {
 })
 
 router.get('show', function * () {
-  if (this.request.query.id || this.user) {
-    var page = this.pagingSlice(this.query.index)
+  if (!(this.query.id || this.user))  this.checkAuth()
 
-    var user = yield db.User.findById(this.request.query.id || this.user.id, {
-      population: {
-        model: 'user',
-        col: 'relation'
-      },
-      attributes: {
-        include: [
-          [sequelize.fn('array_slice_id', sequelize.col('relation'), page.slice[0], page.slice[1]), 'relation'],
-          [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'relationCount']
-        ]
-      }
-    })
-
-    if (!user) {
-      this.throw404(this.request.query.id)
-      return
+  var options = {
+    population: {
+      model: 'user',
+      col: 'relation'
+    },
+    attributes: {
+      include: [
+        [sequelize.fn('COALESCE', sequelize.fn('array_length', sequelize.col('relation'), 1), 0), 'relationCount']
+      ]
     }
-
-    this.pagingPointer(this.query.index, user, 'relation')
-    this.body = user
-  } else {
-    this.checkAuth()
   }
+
+  this.body = yield this.arrayQuery(db.User, this.query.id || this.user.id, options, 'relation', this.query.index)
 })
 
 module.exports = router

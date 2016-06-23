@@ -1,4 +1,4 @@
-﻿const app = require('koa.io')()
+const app = require('koa.io')()
 const router = require('koa-router')()
 
 const injection = require('./codes/injection')
@@ -41,5 +41,4 @@ app
   .use(router.allowedMethods())
 
 socketNotice.routes(app.io)
-
-app.listen(process.env.port || 1337)
+app.listen(process.env.PORT || 3000)

@@ -25,7 +25,7 @@ router.emitNotice = function * (type, user, targetUser, option) {
   for (let key in option) {
     temp.option[key] = option[key]
   }
-  router.emitById(targetUser.id, 'notice', temp)
+  router.emitById(user.id, 'notice', temp)
 }
 
 module.exports = router

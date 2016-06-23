@@ -1,13 +1,16 @@
 {
-  "name": "DawnntNode",
-  "version": "0.0.0",
+  "name": "dawnntnode",
+  "version": "1.0.0",
   "description": "DawnntNode",
   "main": "server.js",
-  "author": {
-    "name": "Timee",
-    "email": ""
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "license": "UNLICENSED",
+  "author": {
+    "name": "Dawnnt",
+    "email": "team@Dawnnt.com"
+  },
+  "license": "ISC"
   "dependencies": {
     "co-request": "^1.0.0",
     "ihuyi106": "0.0.3",

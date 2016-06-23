@@ -8,22 +8,22 @@ router.get('publish', function * () {
   this.checkAuth()
   this.required('id', 'content')
 
-  var status = yield db.Status.findById(this.request.query.id, {
+  var status = yield db.Status.findById(this.query.id, {
     population: {
       model: 'user',
       col: 'user'
     }
   })
   if (!status) {
-    this.throw404(this.request.query.id)
+    this.throw404(this.query.id)
     return
   }
 
   var comment = yield db.Comment.create({
-    status: this.request.query.id,
-    content: this.request.query.content,
-    longitude: this.request.query.longitude,
-    latitude: this.request.query.latitude,
+    status: this.query.id,
+    content: this.query.content,
+    longitude: this.query.longitude,
+    latitude: this.query.latitude,
     user: this.user.id
   })
 
@@ -43,7 +43,7 @@ router.get('reply', function * () {
   this.checkAuth()
   this.required('id', 'content', 'target')
 
-  var status = yield db.Status.findById(this.request.query.id, {
+  var status = yield db.Status.findById(this.query.id, {
     population: {
       model: 'user',
       col: 'user'
@@ -51,11 +51,11 @@ router.get('reply', function * () {
   })
 
   if (!status) {
-    this.throw404(this.request.query.id)
+    this.throw404(this.query.id)
     return
   }
 
-  var target = yield db.Comment.findById(this.request.query.target, {
+  var target = yield db.Comment.findById(this.query.target, {
     population: {
       model: 'user',
       col: 'user'
@@ -63,17 +63,17 @@ router.get('reply', function * () {
   })
 
   if (!target) {
-    this.throw404(this.request.query.target)
+    this.throw404(this.query.target)
     return
   }
 
   var comment = yield db.Comment.create({
-    status: this.request.query.id,
-    content: this.request.query.content,
-    longitude: this.request.query.longitude,
-    latitude: this.request.query.latitude,
+    status: this.query.id,
+    content: this.query.content,
+    longitude: this.query.longitude,
+    latitude: this.query.latitude,
     user: this.user.id,
-    target: this.request.query.target
+    target: this.query.target
   })
 
   status.setDataValue('comment', sequelize.fn('array_cat', sequelize.col('comment'), [Number(comment.id)]))

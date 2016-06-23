@@ -1,8 +1,5 @@
-
-/iisnode
-/.vscode
-/App_Data
-/bin
-/.gitattributes
-codes/config.js
-codes/config.js
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+
+.vscode/*

@@ -86,6 +86,11 @@ function buildOptions (attributes, population) {
   if (population.population) {
     findOptions.population = population.population
   }
+  if (population.options) {
+    if (population.options.attributes) {
+      findOptions.attributes = population.options.attributes
+    }
+  }
   if (Array.isArray(attributes)) {
     attributes.forEach(function (attr) {
       if (Array.isArray(getValue(attr.dataValues, population.col))) {
@@ -298,8 +303,7 @@ exprots.PhoneUser = sequelize.define('phoneuser', {
 exprots.WechatUser = sequelize.define('wechatUser', {
   openid: { type: Sequelize.STRING },
   accessToken: { type: Sequelize.STRING },
-  refreshToken: { type: Sequelize.STRING },
-  token: { type: Sequelize.STRING }
+  refreshToken: { type: Sequelize.STRING }
 }, {
   getterMethods: {
     create_at: function () {

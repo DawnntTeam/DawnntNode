@@ -15,13 +15,13 @@ router.get('sendMessage', function * () {
 
 router.sendMessage = function * (huyi) {
   this.required('phone')
-  var phone = this.request.query.phone
+  var phone = this.query.phone
   if (!phoneRegexp.test(phone)) {
     this.message('请输入正确的手机号')
   }
   var code = Math.random().toString().substring(3, 9)
   yield db.PhoneCode.create({
-    phone: this.request.query.phone,
+    phone: this.query.phone,
     code: code
   })
 
@@ -38,12 +38,12 @@ router.loginFunction = function * () {
     return this.user
   } // 如果已经登录则不需要重新登录
   this.required('type', 'phone')
-  if (this.request.query.type === 'phone') {
+  if (this.query.type === 'phone') {
     this.required('code')
     var phoneCode = yield db.PhoneCode.find({
       where: {
-        phone: this.request.query.phone,
-        code: this.request.query.code
+        phone: this.query.phone,
+        code: this.query.code
       }
     })
     // TODO:code是否需要建立索引还是需要通过建立数组来添加code
@@ -61,7 +61,7 @@ router.loginFunction = function * () {
     var user
     var phoneUser = yield db.PhoneUser.findOne({
       where: {
-        phone: this.request.query.phone
+        phone: this.query.phone
       }
     })
 
@@ -69,12 +69,12 @@ router.loginFunction = function * () {
       user = yield db.User.findById(phoneUser.id)
     } else {
       user = yield db.User.create({
-        phone: this.request.query.phone,
-        name: this.request.query.phone.replace(/^\d{7}/, '*******')
+        phone: this.query.phone,
+        name: this.query.phone.replace(/^\d{7}/, '*******')
       })
       phoneUser = yield db.PhoneUser.create({
         id: user.id,
-        phone: this.request.query.phone
+        phone: this.query.phone
       })
     }
     if (user != null) {

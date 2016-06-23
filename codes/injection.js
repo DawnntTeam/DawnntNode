@@ -1,5 +1,7 @@
 'use strict'
 const util = require('util')
+const sequelize = require('sequelize')
+
 module.exports = function * (next) {
   this.log = function (message) {
     console.log(message)
@@ -59,67 +61,105 @@ module.exports = function * (next) {
     // 用于检查是否存在某项参数或者参数组
     for (var i = 0; i < arguments.length; i++) {
       if (util.isArray(arguments[i])) {
-        if (arguments[i].every((element) => this.request.query[element] === undefined)) {
+        if (arguments[i].every((element) => this.query[element] === undefined)) {
           this.throw412(arguments[i])
         }
       // 如果出入的某项是数组，则只要数组中的某一项不为空就通过
       } else {
-        if (this.request.query[arguments[i]] === undefined) {
+        if (this.query[arguments[i]] === undefined) {
           this.throw412(arguments[i])
         }
       }
     }
   }
 
-  this.pageLength = 32
-  this.pagingSlice = function (index) {
+  this.pageLength = 16
+
+  this.arrayQuery = function * (model, id, options, prop, index) {
+    var skip = -this.pageLength / 2
+    var pageLength = this.pageLength / 2
     if (index) {
-      var skip = Math.max(Number.parseInt(index.substr(1)), 0)
+      skip = Math.max(Number.parseInt(index.substr(1)) , 0)
+      if (skip < 0) {
+        this.throw403('index')
+      }
+      // 除了index为空之外不允许负数
+      pageLength = this.pageLength
       if (index.charAt(0) === '>') {
-        return { slice: [skip, this.pageLength] }
-      } else {
-        var pageLength = this.pageLength
-        if (skip <= 0) {
-          this.throw403('index')
-        }
+        skip++
+      // 由于>是大于index的内容,所以需要+1
+      }
+      if (index.charAt(0) === '<') {
         if (skip < pageLength) {
           pageLength = skip
-        } // 最后一页如果skip比pageLength小时放回的数据无法衔接
-        return { slice: [skip - pageLength, pageLength] }
+        } // 最后一页如果skip比pageLength小时返回的数据无法衔接
+        skip = skip - pageLength
       }
-    } else {
-      return { slice: [-this.pageLength / 2, this.pageLength / 2] }
     }
-  }
-  this.pagingPointer = function (index, data, prop) {
-    if (data.dataValues[prop] == null || data.dataValues[prop].length < 0) {
-      return
-    }
+
+    options.attributes.include.push([sequelize.fn('array_slice_id', sequelize.col(prop), skip, skip + pageLength), prop])
+    var data = yield model.findById(id, options)
+
+    if (data.dataValues[prop] == null || data.dataValues[prop].length < 0) return data
     data.dataValues[prop].reverse()
+
     if (index) {
-      var skip = Math.max(Number.parseInt(index.substr(1)), 0)
       if (index.charAt(0) === '>') {
-        data.dataValues.next = '<' + skip
-        data.dataValues.prev = '>' + (skip + data.dataValues[prop].length)
-      } else {
-        if (skip - data.dataValues[prop].length !== 0) {
-          data.dataValues.next = '<' + (skip - data.dataValues[prop].length)
+        data.dataValues.prev = '>' + (skip + data.dataValues[prop].length - 1)
+      }
+      if (index.charAt(0) === '<') {
+        if (skip !== 0) {
+          data.dataValues.next = '<' + skip
         }
-        data.dataValues.prev = '>' + skip
       }
     } else {
       if ((data.dataValues[prop + 'Count'] - data.dataValues[prop].length) !== 0) {
         data.dataValues.next = '<' + (data.dataValues[prop + 'Count'] - data.dataValues[prop].length)
       }
-      data.dataValues.prev = '>' + data.dataValues[prop + 'Count']
+      data.dataValues.prev = '>' + (data.dataValues[prop + 'Count'] - 1)
     }
 
-    for (var i = 0; i < data.dataValues[prop].length; i++) {
+    for (let i = 0; i < data.dataValues[prop].length; i++) {
       if (data.dataValues[prop][i] == null) {
-        data.dataValues[prop].splice(i, 1) // 返回指定的元素
+        data.dataValues[prop].splice(i, 1)
         i--
       }
     }
+    // 移除空值
+    return data
+  }
+  this.listQuery = function * (model, options, prop, index) {
+    options.limit = this.pageLength
+    options.order = 'id DESC'
+
+    if (index !== undefined) {
+      if (index.charAt(0) === '>') {
+        options.where.id = {
+          gt: index.substr(1)
+        }
+        options.order = 'id ASC'
+      } else if (index.charAt(0) === '<') {
+        options.where.id = {
+          lt: index.substr(1)
+        }
+      }
+    }
+
+    var list = yield model.findAll(options)
+    var data = {}
+    data[prop] = list
+
+    if (list.length > 0) {
+      if (options.order === 'id ASC') {
+        list.reverse()
+      }
+      data.next = '<' + list[list.length - 1].id
+      data.prev = '>' + list[0].id
+    } else if (options.where.id.gt) {
+      data.prev = this.query.index
+    }
+
+    return data
   }
 
   this.ListPage = function (pageing, list) {
@@ -155,8 +195,8 @@ module.exports = function * (next) {
     }
   }
 
-  if (this.request && this.request.query && this.request.query.id) {
-    if (this.request.query.id.length !== 16) {
+  if (this.query && this.query.id) {
+    if (this.query.id.length !== 16) {
       this.throw412('id')
     }
   } // 如果有id这自动验证id长度是否匹配

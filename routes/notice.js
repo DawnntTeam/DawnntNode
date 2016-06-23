@@ -50,12 +50,10 @@ router.get('unread', function * () {
 router.get('show', function * () {
   this.checkAuth()
 
-  var option = {
+  var options = {
     where: {
       targetUser: this.user.id
     },
-    limit: 25,
-    order: 'id DESC',
     population: [{
       model: 'user',
       col: 'user'
@@ -75,42 +73,14 @@ router.get('show', function * () {
     }]
   }
 
-  if (this.query !== undefined) {
-    if (this.query.state !== undefined) {
-      option.where.state = this.query.state
-    }
-    if (this.query.type !== undefined) {
-      option.where.type = this.query.type.substring(0, this.query.type.length).split(',')
-    }
-    if (this.query.index !== undefined) {
-      if (this.query.index.charAt(0) === '>') {
-        option.where.id = {
-          gt: this.query.index.substr(1)
-        }
-        option.order = 'id ASC'
-      } else { // 下一页 next
-        option.where.id = {
-          lt: this.query.index.substr(1)
-        }
-      }
-    }
+  if (this.query.state !== undefined) {
+    options.where.state = this.query.state
+  }
+  if (this.query.type !== undefined) {
+    options.where.type = this.query.type.substring(0, this.query.type.length).split(',')
   }
 
-  var notice = yield db.Notice.findAll(option)
-
-  var notices = {notice: notice}
-
-  if (notice.length > 0) {
-    if (option.order === 'id ASC' && notice.length > 1) {
-      notice.reverse()
-    }
-    notices.next = '<' + notice[notice.length - 1].id
-    notices.prev = '>' + notice[0].id
-  } else if (option.where.id.gt) {
-    notices.prev = this.query.index
-  }
-
-  this.body = notices
+  this.body = yield this.listQuery(db.Notice, options, 'notice', this.query.index)
 })
 
 router.unread = function * (targetUser) {
