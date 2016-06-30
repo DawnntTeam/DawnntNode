@@ -1,10 +1,12 @@
 branch-defaults:
   default:
     environment: DawnntNode
+  develop:
+    environment: DawnntNode
 global:
   application_name: DawnntNode
   default_ec2_keyname: mishi
   default_platform: 64bit Amazon Linux 2016.03 v2.1.1 running Node.js
   default_region: cn-north-1
   profile: eb-cli
-  sc: null
+  sc: git

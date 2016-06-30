@@ -10,7 +10,7 @@
     "name": "Dawnnt",
     "email": "team@Dawnnt.com"
   },
-  "license": "ISC"
+  "license": "ISC",
   "dependencies": {
     "co-request": "^1.0.0",
     "ihuyi106": "0.0.3",
