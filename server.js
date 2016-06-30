@@ -20,9 +20,14 @@ router.get('/', function * (next) {
 
 app.on('error', function (error, context) {
   context.status = 200
-  context.length = Buffer.byteLength(error.message)
+  var message = error.isMessage ? error.message : JSON.stringify({
+    message: '呜呼~~出错了!!T_T呜咕',
+    status: 500,
+    isError: true
+  })
+  context.length = Buffer.byteLength(message)
   context.set('Content-Type', 'application/json; charset=utf-8')
-  context.res.end(error.message, 'utf-8')
+  context.res.end(message, 'utf-8')
 })
 
 app

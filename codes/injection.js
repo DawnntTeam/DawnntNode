@@ -201,14 +201,5 @@ module.exports = function * (next) {
     }
   } // 如果有id这自动验证id长度是否匹配
 
-  try {
-    yield * next
-  } catch (error) {
-    if (error.isMessage) {
-      throw error
-    } else {
-      this.error(error)
-      this.throw(500)
-    }
-  }
+  yield * next
 }

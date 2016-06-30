@@ -36,6 +36,11 @@ sequelize.addHook('beforeDefine', function (attributes, options) {
 })
 
 sequelize.addHook('afterFind', function (attributes, options) {
+  if (!attributes) {
+    var error = new Error(JSON.stringify({ message: '找不到信息', status: 404, isError: true }))
+    error.isMessage = true
+    throw error
+  }
   if (options && options.hasOwnProperty('population') && typeof options.population === 'object') {
     if (Array.isArray(options.population)) {
       var promises = []
