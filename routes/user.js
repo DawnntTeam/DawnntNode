@@ -55,6 +55,7 @@ router.get('show', function * () {
 
   if (this.user) {
     options.attributes.include.push([sequelize.fn('array_exist_id', sequelize.col('relation'), this.user.id), 'isFriend'])
+    options.population.options.attributes.include.push([sequelize.fn('array_exist_id', sequelize.col('like'), this.user.id), 'isLike'])
   }
 
   this.body = yield this.arrayQuery(db.User, this.query.id || this.user.id, options, 'status', this.query.index)
