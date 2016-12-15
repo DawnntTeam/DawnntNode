@@ -3,8 +3,10 @@
 const config = require('./config')
 
 process.env['BLUEBIRD_DEBUG'] = 0
-var Sequelize = require('sequelize')
-var sequelize = new Sequelize(config.getSQLConfig(), {
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize(config.getSQLConfig().database, config.getSQLConfig().username, config.getSQLConfig().password, {
+  host: config.getSQLConfig().host,
+  dialect: 'postgres',
   define: {
     freezeTableName: true,
     timestamps: false
@@ -31,7 +33,7 @@ sequelize.addHook('beforeDefine', function (attributes, options) {
     for (let key in temp) {
       attributes[key] = temp[key]
     }
-  // 用于调整id在列中的顺序排第一
+    // 用于调整id在列中的顺序排第一
   }
 })
 
@@ -82,7 +84,7 @@ sequelize.addHook('afterFind', function (attributes, options) {
   }
 })
 
-function buildOptions (attributes, population) {
+function buildOptions(attributes, population) {
   var findOptions = {
     where: {
       id: []
@@ -122,7 +124,7 @@ function buildOptions (attributes, population) {
   return findOptions
 }
 
-function buildData (result, data, col) {
+function buildData(result, data, col) {
   var resultMap = new Map()
   result.forEach(function (res) {
     resultMap[res.id] = res
@@ -146,7 +148,7 @@ function buildData (result, data, col) {
   }
 }
 
-function getValue (data, col) {
+function getValue(data, col) {
   if (Array.isArray(col)) {
     for (var i = 0; i < col.length - 1; i++) {
       data = data[col[i]]
@@ -156,7 +158,7 @@ function getValue (data, col) {
     return data[col]
   }
 }
-function setValue (data, col, value) {
+function setValue(data, col, value) {
   if (Array.isArray(col)) {
     for (var i = 0; i < col.length - 1; i++) {
       data = data[col[i]]
@@ -198,12 +200,12 @@ exprots.User = sequelize.define('user', {
     type: Sequelize.STRING
   }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 exprots.Status = sequelize.define('status', {
   longitude: {
     type: Sequelize.DECIMAL
@@ -221,12 +223,12 @@ exprots.Status = sequelize.define('status', {
     type: Sequelize.ARRAY(Sequelize.BIGINT)
   }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 
 exprots.Comment = sequelize.define('comment', {
   longitude: {
@@ -248,12 +250,12 @@ exprots.Comment = sequelize.define('comment', {
     type: Sequelize.BIGINT
   }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 
 exprots.Notice = sequelize.define('notice', {
   type: {
@@ -273,24 +275,24 @@ exprots.Notice = sequelize.define('notice', {
     type: Sequelize.JSONB
   }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 
 exprots.Bubblemap = sequelize.define('bubblemap', {
   map: {
     type: Sequelize.STRING
   }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 exprots.Bubblemap.hasOne(exprots.Status, { foreignKey: 'id' })
 
 exprots.PhoneUser = sequelize.define('phoneuser', {
@@ -298,50 +300,50 @@ exprots.PhoneUser = sequelize.define('phoneuser', {
     type: Sequelize.STRING
   }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 
 exprots.WechatUser = sequelize.define('wechatUser', {
   openid: { type: Sequelize.STRING },
   accessToken: { type: Sequelize.STRING },
   refreshToken: { type: Sequelize.STRING }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 
 exprots.Token = sequelize.define('token', {
   token: { type: Sequelize.STRING },
   user: { type: Sequelize.BIGINT },
   last: { type: Sequelize.DATE, defaultValue: Date.now }
 }, {
-  getterMethods: {
-    create_at: function () {
-      return new Date(this.id / 1000)
+    getterMethods: {
+      create_at: function () {
+        return new Date(this.id / 1000)
+      }
     }
-  }
-})
+  })
 
 exprots.MemoryCache = sequelize.define('memoryCache', {
-  key: {type: Sequelize.STRING, allowNull: false, primaryKey: true},
-  value: {type: Sequelize.STRING},
+  key: { type: Sequelize.STRING, allowNull: false, primaryKey: true },
+  value: { type: Sequelize.STRING },
   expires: { type: Sequelize.DATE }
-}, {noid: true})
+}, { noid: true })
 
 exprots.PhoneCode = sequelize.define('phoneCode', {
   phone: { type: Sequelize.STRING },
   code: { type: Sequelize.STRING }
 }, {
-  getterMethods: {
-    create_at: function () { return new Date(this.id / 1000) }
-  }
-})
+    getterMethods: {
+      create_at: function () { return new Date(this.id / 1000) }
+    }
+  })
 
 module.exports = exprots

@@ -1,6 +1,12 @@
 module.exports = {
   getSQLConfig: function () {
-    return 'postgres://IijU0j0j7W03NGVy:EZgtif^6OYxu$Ip$@qumaopao.c2lcbydwiw7b.rds.cn-north-1.amazonaws.com.cn:5432/qumaopao'
+    return {
+      database: 'qumaopao',
+      username: 'postgres',
+      password: 'fan4ren#dawnnt',
+      host: '112.74.26.67',
+    }
+    // return 'postgres://postgres:fan4ren#dawnnt@112.74.26.67:5432/qumaopao'
   },
   getWechatConfig: function () {
     return {
